@@ -1,13 +1,13 @@
 // js/storage.js
-// Solo almacena acciones reales del usuario. Si un día no escribes notas, ocupa 0 bytes.
+// Solo almacena los días donde realmente escribes notas o reflexiones (0 basura en memoria).
 
 const STORAGE_KEYS = {
-  STREAK_DATES: 'logos_v4_streak_dates',
-  NOTES_BY_DATE: 'logos_v4_notes_by_date', // { "YYYY-MM-DD": { reflections: [], labNotes: [] } }
-  READ_CHAPTERS: 'logos_v4_read_chapters', // { "1 Corintios": [15] }
-  HIGHLIGHTS: 'logos_v4_highlights',       // { "1 Corintios-15-42": "bg-sunshine/40" }
-  VERSE_NOTES: 'logos_v4_verse_notes',     // { "1 Corintios-15-42": "texto" }
-  SAVED_VERSES: 'logos_v4_saved_verses'    // [ { id, book, chapter, verse, text, date } ]
+  STREAK_DATES: 'logos_v5_streak_dates',
+  NOTES_BY_DATE: 'logos_v5_notes_by_date', // { "YYYY-MM-DD": { reflections: [], labNotes: [] } }
+  READ_CHAPTERS: 'logos_v5_read_chapters', // { "1 Corintios": [15] }
+  HIGHLIGHTS: 'logos_v5_highlights',
+  VERSE_NOTES: 'logos_v5_verse_notes',
+  SAVED_VERSES: 'logos_v5_saved_verses'
 };
 
 window.StorageEngine = {
@@ -24,7 +24,6 @@ window.StorageEngine = {
     localStorage.setItem(key, JSON.stringify(val));
   },
 
-  // Limpia llaves vacías para nunca guardar basura en localStorage
   saveDayNotes(dateStr, dayObject, allNotesMap) {
     const hasReflections = dayObject.reflections && dayObject.reflections.length > 0;
     const hasLabNotes = dayObject.labNotes && dayObject.labNotes.length > 0;

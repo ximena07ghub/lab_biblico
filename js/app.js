@@ -10,11 +10,13 @@ createApp({
       mode: 'busy', // 'busy' | 'lab' | 'map' | 'memory'
       todayStr: todayISO,
       selectedDate: todayISO,
+      selectedLabTab: 0, // 0 al 4 (Los 5 enfoques de cada día)
+      showMobileCalendar: false, // Evita que el calendario ocupe toda la pantalla en celular
       calYear: now.getFullYear(),
-      calMonth: now.getMonth(), // 0-11
+      calMonth: now.getMonth(),
       toastMsg: '',
 
-      // Datos persistentes ligeros (Sparse Storage)
+      // Almacenamiento inteligente (Sparse Storage)
       streakHistory: StorageEngine.get(StorageEngine.KEYS.STREAK_DATES, [todayISO]),
       notesByDate: StorageEngine.get(StorageEngine.KEYS.NOTES_BY_DATE, {}),
       readChaptersMap: StorageEngine.get(StorageEngine.KEYS.READ_CHAPTERS, { '1 Corintios': [15], 'Romanos': [12] }),
@@ -22,7 +24,7 @@ createApp({
       verseNotes: StorageEngine.get(StorageEngine.KEYS.VERSE_NOTES, {}),
       savedVerses: StorageEngine.get(StorageEngine.KEYS.SAVED_VERSES, []),
 
-      // Formularios de Notas del Día Seleccionado
+      // Formularios de notas
       newReflectionTitle: '',
       newReflectionType: '💭 Reflexión',
       newReflectionContent: '',
@@ -30,6 +32,7 @@ createApp({
       newLabNoteTitle: '',
       newLabNoteCategory: '🔬 Hallazgo Científico',
       newLabNoteBody: '',
+      filterLabNotesByTab: false, // Permite ver todas las notas del día o solo las del enfoque activo
 
       // Lector Bíblico
       bibleBooks: window.BIBLE_BOOKS,
@@ -44,17 +47,21 @@ createApp({
     };
   },
   computed: {
-    // Calcula qué Semilla y qué Laboratorio tocan en la fecha seleccionada del calendario
+    // Día activo según la fecha seleccionada en el calendario
     currentDayData() {
       const parts = this.selectedDate.split('-').map(Number);
       const dayNumber = parts[2] || 1;
       const index = (dayNumber - 1) % window.DAILY_CURRICULUM.length;
       return window.DAILY_CURRICULUM[index];
     },
-    currentLab() {
-      return this.currentDayData.lab;
+    // Los 5 laboratorios actualizados para el día seleccionado
+    currentDayLabs() {
+      return this.currentDayData.labs || [];
     },
-    // Notas guardadas específicamente en la fecha seleccionada (0 ruido si está vacío)
+    // El enfoque (1 de los 5) seleccionado actualmente en este día
+    currentLab() {
+      return this.currentDayLabs[this.selectedLabTab] || this.currentDayLabs[0];
+    },
     selectedDateNotes() {
       return this.notesByDate[this.selectedDate] || { reflections: [], labNotes: [] };
     },
@@ -62,9 +69,12 @@ createApp({
       return this.selectedDateNotes.reflections || [];
     },
     currentLabNotes() {
-      return this.selectedDateNotes.labNotes || [];
+      const allDayLabNotes = this.selectedDateNotes.labNotes || [];
+      if (this.filterLabNotesByTab) {
+        return allDayLabNotes.filter(n => n.labTab === this.selectedLabTab);
+      }
+      return allDayLabNotes;
     },
-    // Mini-Calendario Mensual
     monthLabel() {
       const d = new Date(this.calYear, this.calMonth, 1);
       return d.toLocaleDateString('es-MX', { month: 'long', year: 'numeric' });
@@ -72,12 +82,11 @@ createApp({
     calendarDays() {
       const firstDay = new Date(this.calYear, this.calMonth, 1);
       const lastDay = new Date(this.calYear, this.calMonth + 1, 0);
-      // Ajustar para que Lunes sea el primer día (0=Lu ... 6=Do)
       const startOffset = (firstDay.getDay() + 6) % 7;
       const cells = [];
 
       for (let i = 0; i < startOffset; i++) {
-        cells.push({ empty: true, key: 'empty-' + i });
+        cells.push({ empty: true, key: 'e-' + i });
       }
       for (let d = 1; d <= lastDay.getDate(); d++) {
         const mm = String(this.calMonth + 1).padStart(2, '0');
@@ -132,48 +141,35 @@ createApp({
       this.toastMsg = msg;
       setTimeout(() => { this.toastMsg = ''; }, 3000);
     },
-
-    // NAVEGACIÓN DEL MINI-CALENDARIO LATERAL
     selectCalendarDate(dateISO) {
       this.selectedDate = dateISO;
       const [y, m] = dateISO.split('-').map(Number);
       this.calYear = y;
       this.calMonth = m - 1;
+      this.showMobileCalendar = false;
     },
     prevMonth() {
-      if (this.calMonth === 0) {
-        this.calMonth = 11;
-        this.calYear--;
-      } else {
-        this.calMonth--;
-      }
+      if (this.calMonth === 0) { this.calMonth = 11; this.calYear--; }
+      else { this.calMonth--; }
     },
     nextMonth() {
-      if (this.calMonth === 11) {
-        this.calMonth = 0;
-        this.calYear++;
-      } else {
-        this.calMonth++;
-      }
+      if (this.calMonth === 11) { this.calMonth = 0; this.calYear++; }
+      else { this.calMonth++; }
     },
     goToToday() {
       this.selectCalendarDate(this.todayStr);
     },
-
-    // RACHA POR FECHA
     toggleStreakForSelectedDate() {
       const idx = this.streakHistory.indexOf(this.selectedDate);
       if (idx === -1) {
         this.streakHistory.push(this.selectedDate);
-        this.showToast(`🌱 Racha registrada para el ${this.selectedDate}`);
+        this.showToast(`🌱 Racha completada el ${this.selectedDate}`);
       } else {
         this.streakHistory.splice(idx, 1);
         this.showToast(`Racha desmarcada del ${this.selectedDate}`);
       }
       StorageEngine.set(StorageEngine.KEYS.STREAK_DATES, this.streakHistory);
     },
-
-    // GUARDADO DE REFLEXIONES DIARIAS (VINCULADAS A LA FECHA DEL CALENDARIO)
     addDailyReflection() {
       if (!this.newReflectionContent.trim()) {
         this.showToast('Escribe tu reflexión antes de guardar.');
@@ -191,7 +187,7 @@ createApp({
       this.notesByDate = { ...this.notesByDate };
       this.newReflectionTitle = '';
       this.newReflectionContent = '';
-      this.showToast(`💾 Reflexión guardada en el día ${this.selectedDate}`);
+      this.showToast(`💾 Reflexión guardada en ${this.selectedDate}`);
     },
     deleteDailyReflection(id) {
       const dayRecord = this.notesByDate[this.selectedDate];
@@ -200,8 +196,7 @@ createApp({
       StorageEngine.saveDayNotes(this.selectedDate, dayRecord, this.notesByDate);
       this.notesByDate = { ...this.notesByDate };
     },
-
-    // GUARDADO DE NOTAS DEL LABORATORIO (VINCULADAS AL LAB DE ESE DÍA)
+    // Guarda la nota vinculada al Día y a cuál de los 5 Enfoques pertenece
     saveNewLabNote() {
       if (!this.newLabNoteBody.trim()) {
         this.showToast('Escribe el contenido de tu nota antes de guardar.');
@@ -210,8 +205,10 @@ createApp({
       const dayRecord = this.notesByDate[this.selectedDate] || { reflections: [], labNotes: [] };
       dayRecord.labNotes.unshift({
         id: Date.now(),
+        labTab: this.selectedLabTab,
+        labShortTitle: this.currentLab.shortTitle,
         labTitle: this.currentLab.title,
-        title: this.newLabNoteTitle.trim() || this.currentLab.angle,
+        title: this.newLabNoteTitle.trim() || this.currentLab.shortTitle,
         category: this.newLabNoteCategory,
         body: this.newLabNoteBody.trim(),
         time: new Date().toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })
@@ -220,7 +217,7 @@ createApp({
       this.notesByDate = { ...this.notesByDate };
       this.newLabNoteTitle = '';
       this.newLabNoteBody = '';
-      this.showToast(`💾 Nota guardada en el Laboratorio del ${this.selectedDate}`);
+      this.showToast(`💾 Guardado en ${this.currentLab.shortTitle} (${this.selectedDate})`);
     },
     deleteLabNote(id) {
       const dayRecord = this.notesByDate[this.selectedDate];
@@ -229,8 +226,10 @@ createApp({
       StorageEngine.saveDayNotes(this.selectedDate, dayRecord, this.notesByDate);
       this.notesByDate = { ...this.notesByDate };
     },
-
-    // LECTOR BÍBLICO Y CAPÍTULOS EXACTOS
+    getLabNotesCountForTab(tabIndex) {
+      const list = (this.notesByDate[this.selectedDate] && this.notesByDate[this.selectedDate].labNotes) || [];
+      return list.filter(n => n.labTab === tabIndex).length;
+    },
     getReadArray(bookName) {
       return this.readChaptersMap[bookName] || [];
     },
@@ -326,10 +325,7 @@ createApp({
     saveFavoriteVerse(bookName, ch, v, text) {
       const id = `${bookName}-${ch}-${v}`;
       if (!this.savedVerses.some(item => item.id === id)) {
-        this.savedVerses.unshift({
-          id, book: bookName, chapter: ch, verse: v, text,
-          date: this.selectedDate
-        });
+        this.savedVerses.unshift({ id, book: bookName, chapter: ch, verse: v, text, date: this.selectedDate });
         StorageEngine.set(StorageEngine.KEYS.SAVED_VERSES, this.savedVerses);
         this.showToast(`⭐ ${bookName} ${ch}:${v} guardado en tu Memoria.`);
       }
@@ -351,7 +347,7 @@ createApp({
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `memoria-jardin-biblico-${this.todayStr}.json`;
+      a.download = `memoria-estudios-${this.todayStr}.json`;
       a.click();
     }
   }

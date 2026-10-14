@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estudios | Jardín Bíblico & Laboratorio Diario</title>
+  <title>Estudios | Racha & Laboratorio Bíblico</title>
   <meta name="theme-color" content="#FFF7E6">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
@@ -31,552 +31,621 @@
   </script>
   <link rel="stylesheet" href="./css/styles.css">
 </head>
-<body class="min-h-screen pb-24 selection:bg-blush/50">
+<body class="min-h-screen pb-20 selection:bg-blush/50">
   <div id="app">
 
-    <!-- BARRA DE NAVEGACIÓN PRINCIPAL -->
-    <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-sage/60">
-      <div class="max-w-7xl mx-auto px-4 sm:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
+    <!-- =====================================================
+         ENCABEZADO LIMPIO Y RESPONSIVE PARA CELULAR
+         ===================================================== -->
+    <header class="sticky top-0 z-40 bg-cream/95 backdrop-blur-md border-b border-sage">
+      <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 space-y-2.5 md:space-y-0 md:flex md:items-center md:justify-between gap-3">
         
-        <div class="flex items-center gap-3">
-          <div class="w-11 h-11 rounded-2xl bg-sage/50 border-2 border-leaf flex items-center justify-center shadow-sm">
-            <svg viewBox="0 0 80 80" class="w-8 h-8 stroke-ink fill-none" stroke-width="3.5" stroke-linecap="round">
-              <path d="M18 48 L15 24 L28 32 Q40 30 52 32 L65 24 L62 48" fill="#FFFDF9"/>
-              <circle cx="31" cy="43" r="2.5" fill="#2C3527"/><circle cx="49" cy="43" r="2.5" fill="#2C3527"/>
-              <path d="M37 45 Q40 48 43 45"/>
-              <path d="M22 56 Q40 52 40 62 Q40 52 58 56 L58 66 Q40 62 40 70 Q40 62 22 66 Z" fill="#F4C542"/>
-            </svg>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="editorial-font text-2xl font-bold text-leaf tracking-tight">Estudios</span>
-              <span class="text-[11px] font-extrabold uppercase tracking-widest bg-blush/60 text-ink px-2.5 py-0.5 rounded-full">Biblia & Ciencia</span>
+        <!-- Fila 1 en móvil: Logo + Medalla de Racha -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-10 h-10 rounded-lg bg-sage/50 border-2 border-leaf flex items-center justify-center shrink-0">
+              <svg viewBox="0 0 80 80" class="w-7 h-7 stroke-ink fill-none" stroke-width="3.5" stroke-linecap="round">
+                <path d="M18 48 L15 24 L28 32 Q40 30 52 32 L65 24 L62 48" fill="#FFFDF9"/>
+                <circle cx="31" cy="43" r="2.5" fill="#2C3527"/><circle cx="49" cy="43" r="2.5" fill="#2C3527"/>
+                <path d="M22 56 Q40 52 40 62 Q40 52 58 56 L58 66 Q40 62 40 70 Q40 62 22 66 Z" fill="#F4C542"/>
+              </svg>
             </div>
-            <p class="text-xs text-ink/70 font-semibold">Viendo fecha: <strong>{{ selectedDate }}</strong></p>
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <span class="editorial-font text-xl font-bold text-leaf truncate">Estudios</span>
+                <span class="text-[10px] font-extrabold uppercase bg-blush/60 text-ink px-2 py-0.5 rounded">Fecha: {{ selectedDate }}</span>
+              </div>
+              <p class="text-[11px] text-ink/70 font-semibold truncate">{{ currentDayData.shortTopic }}</p>
+            </div>
+          </div>
+
+          <!-- Medalla de Racha Compacta -->
+          <div class="flex items-center gap-2 bg-sunshine/25 border border-sunshine px-3 py-1.5 rounded-lg shrink-0">
+            <span class="text-base">🔥</span>
+            <div class="text-right sm:text-left">
+              <div class="text-xs font-extrabold text-ink leading-none">{{ streakCount }} Días</div>
+              <div class="text-[10px] font-bold text-leaf leading-tight">Racha de Gracia</div>
+            </div>
           </div>
         </div>
 
-        <nav class="flex flex-wrap bg-paper p-1.5 rounded-full border-2 border-sage shadow-sm gap-1">
-          <button @click="mode = 'busy'" :class="mode === 'busy' ? 'bg-leaf text-white shadow-sm' : 'text-ink/70 hover:text-ink'"
-            class="px-4 py-2 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5">
-            <span>🌼</span> Semilla del Día
+        <!-- Fila 2 en móvil: Navegación en Cuadrícula Ordenada (Sin salirse de pantalla) -->
+        <nav class="grid grid-cols-2 sm:flex bg-paper p-1 rounded-lg border border-sage gap-1">
+          <button @click="mode = 'busy'" :class="mode === 'busy' ? 'bg-leaf text-white' : 'text-ink/80 hover:bg-cream'"
+            class="px-3 py-2 rounded-md text-xs font-extrabold transition flex items-center justify-center gap-1.5">
+            <span>🌼</span> Semilla Diaria
           </button>
-          <button @click="mode = 'lab'" :class="mode === 'lab' ? 'bg-marigold text-white shadow-sm' : 'text-ink/70 hover:text-ink'"
-            class="px-4 py-2 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5">
-            <span>🌀</span> Lab del Día
+          <button @click="mode = 'lab'" :class="mode === 'lab' ? 'bg-marigold text-white' : 'text-ink/80 hover:bg-cream'"
+            class="px-3 py-2 rounded-md text-xs font-extrabold transition flex items-center justify-center gap-1.5">
+            <span>🌀</span> Lab (5 Enfoques)
           </button>
-          <button @click="mode = 'map'" :class="mode === 'map' ? 'bg-night text-cream shadow-sm' : 'text-ink/70 hover:text-ink'"
-            class="px-4 py-2 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5">
-            <span>📖</span> Jardín de Lectura ({{ progressPercentage }}%)
+          <button @click="mode = 'map'" :class="mode === 'map' ? 'bg-night text-cream' : 'text-ink/80 hover:bg-cream'"
+            class="px-3 py-2 rounded-md text-xs font-extrabold transition flex items-center justify-center gap-1.5">
+            <span>📖</span> Biblia ({{ progressPercentage }}%)
           </button>
-          <button @click="mode = 'memory'" :class="mode === 'memory' ? 'bg-periwinkle text-white shadow-sm' : 'text-ink/70 hover:text-ink'"
-            class="px-4 py-2 rounded-full text-xs font-extrabold transition-all flex items-center gap-1.5">
-            <span>🗂️</span> Mi Memoria ({{ totalSavedNotesCount + savedVerses.length }})
+          <button @click="mode = 'memory'" :class="mode === 'memory' ? 'bg-periwinkle text-white' : 'text-ink/80 hover:bg-cream'"
+            class="px-3 py-2 rounded-md text-xs font-extrabold transition flex items-center justify-center gap-1.5">
+            <span>🗂️</span> Memoria ({{ totalSavedNotesCount + savedVerses.length }})
           </button>
         </nav>
-
-        <div class="flex items-center gap-3 bg-sunshine/25 border-2 border-sunshine px-4 py-1.5 rounded-full">
-          <span class="text-xl">🔥</span>
-          <div>
-            <div class="text-xs font-extrabold text-ink leading-tight">{{ streakCount }} Días Sembrados</div>
-            <div class="text-[10px] font-bold text-leaf">✨ Racha de Gracia Activa</div>
-          </div>
-        </div>
 
       </div>
     </header>
 
     <!-- Notificación Flotante -->
-    <div v-if="toastMsg" class="fixed bottom-6 right-6 z-50 bg-night text-cream px-5 py-3 rounded-2xl shadow-xl border-2 border-sunshine text-xs font-extrabold">
+    <div v-if="toastMsg" class="fixed bottom-4 right-4 left-4 sm:left-auto z-50 bg-night text-cream px-4 py-3 rounded-lg shadow-xl border border-sunshine text-xs font-extrabold text-center">
       {{ toastMsg }}
     </div>
 
     <!-- =====================================================
          CONTENEDOR PRINCIPAL CON MINI-CALENDARIO LATERAL
-         (Aparece en "Semilla del Día" y en "Lab del Día")
          ===================================================== -->
-    <div v-if="mode === 'busy' || mode === 'lab'" class="max-w-7xl mx-auto px-4 sm:px-8 pt-6 grid lg:grid-cols-12 gap-8 items-start">
+    <div v-if="mode === 'busy' || mode === 'lab'" class="max-w-7xl mx-auto px-3 sm:px-6 pt-4 sm:pt-6">
 
-      <!-- BARRA LATERAL IZQUIERDA (3 COLUMNAS): MINI-CALENDARIO DE VIAJE EN EL TIEMPO -->
-      <aside class="lg:col-span-3 space-y-5 lg:sticky lg:top-24">
-        
-        <div class="bg-paper border-2 border-sage stamp-card p-5 space-y-4">
-          <div class="flex justify-between items-center">
-            <span class="text-[11px] font-extrabold uppercase tracking-wider text-leaf">📅 Calendario Diario</span>
-            <button v-if="selectedDate !== todayStr" @click="goToToday" class="text-[11px] font-extrabold text-marigold hover:underline">
-              Volver a Hoy
-            </button>
-          </div>
-
-          <!-- Navegador de Mes -->
-          <div class="flex justify-between items-center bg-cream px-3 py-1.5 rounded-xl border border-sage">
-            <button @click="prevMonth" class="text-xs font-extrabold px-2 py-0.5 hover:bg-sage/40 rounded">◀</button>
-            <span class="editorial-font text-sm font-bold capitalize text-ink">{{ monthLabel }}</span>
-            <button @click="nextMonth" class="text-xs font-extrabold px-2 py-0.5 hover:bg-sage/40 rounded">▶</button>
-          </div>
-
-          <!-- Cabecera L M M J V S D -->
-          <div class="grid grid-cols-7 text-center text-[10px] font-extrabold text-ink/60">
-            <div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sá</div><div>Do</div>
-          </div>
-
-          <!-- Días del Mes -->
-          <div class="grid grid-cols-7 gap-1">
-            <div v-for="cell in calendarDays" :key="cell.key">
-              <div v-if="cell.empty" class="h-9"></div>
-              <button v-else @click="selectCalendarDate(cell.dateISO)"
-                :title="cell.topicShort"
-                :class="[
-                  selectedDate === cell.dateISO ? 'ring-2 ring-marigold bg-sunshine/40 font-extrabold' : 'hover:bg-sage/30',
-                  cell.hasStreak ? 'bg-sage/50 text-ink font-bold' : 'bg-cream/60 text-ink'
-                ]"
-                class="w-full h-9 rounded-xl text-xs flex flex-col items-center justify-center relative transition border border-sage/40">
-                <span>{{ cell.dayNum }}</span>
-                <!-- Indicadores limpios: Hojita si hay racha, puntito naranja si guardaste notas ese día -->
-                <div class="flex items-center gap-0.5 leading-none">
-                  <span v-if="cell.hasStreak" class="w-1.5 h-1.5 rounded-full bg-leaf" title="Racha completada"></span>
-                  <span v-if="cell.hasNotes" class="w-1.5 h-1.5 rounded-full bg-marigold" title="Tienes notas guardadas este día"></span>
-                </div>
-              </button>
-            </div>
-          </div>
-
-          <!-- Leyenda del Mini-Calendario -->
-          <div class="flex justify-between text-[10px] font-bold text-ink/70 pt-1 border-t border-sage/50">
-            <span class="flex items-center gap-1"><i class="w-2 h-2 rounded-full bg-leaf inline-block"></i> Racha leída</span>
-            <span class="flex items-center gap-1"><i class="w-2 h-2 rounded-full bg-marigold inline-block"></i> Día con notas</span>
-          </div>
-
-          <!-- Tarjeta Resumen del Día Seleccionado + Switch Rápido Semilla / Lab -->
-          <div class="bg-cream/90 border-2 border-sunshine/70 rounded-2xl p-3.5 space-y-2.5">
-            <div class="text-[10px] font-extrabold uppercase text-marigold">📌 Día seleccionado: {{ selectedDate }}</div>
-            <div class="text-xs font-extrabold text-ink leading-snug">🌼 {{ currentDayData.shortTopic }}</div>
-            <div class="text-[11px] text-ink/75 leading-snug">🌀 {{ currentLab.angle }}</div>
-
-            <div class="grid grid-cols-2 gap-1.5 pt-1">
-              <button @click="mode = 'busy'" :class="mode === 'busy' ? 'bg-leaf text-white' : 'bg-paper text-ink border border-sage'"
-                class="py-1.5 rounded-xl text-[11px] font-extrabold transition">
-                Ver Semilla
-              </button>
-              <button @click="mode = 'lab'" :class="mode === 'lab' ? 'bg-marigold text-white' : 'bg-paper text-ink border border-sage'"
-                class="py-1.5 rounded-xl text-[11px] font-extrabold transition">
-                Ir al Lab 🌀
-              </button>
-            </div>
-          </div>
+      <!-- BARRA MÓVIL PARA ABRIR/CERRAR CALENDARIO EN CELULAR -->
+      <div class="lg:hidden mb-4 bg-paper border border-sage rounded-lg p-3 flex justify-between items-center gap-2">
+        <div class="min-w-0">
+          <div class="text-[11px] font-extrabold text-leaf uppercase">📅 Día activo: {{ selectedDate }}</div>
+          <div class="text-xs font-bold text-ink truncate">{{ currentDayData.shortTopic }}</div>
         </div>
+        <button @click="showMobileCalendar = !showMobileCalendar"
+          class="bg-cream border border-sage px-3 py-2 rounded-md text-xs font-extrabold text-ink shrink-0">
+          {{ showMobileCalendar ? '▲ Ocultar Calendario' : '📅 Cambiar Día' }}
+        </button>
+      </div>
 
-        <!-- Acceso rápido solo a los días donde escribiste notas (Cero ruido) -->
-        <div v-if="daysWithNotesList.length > 0" class="bg-paper border-2 border-sage stamp-card p-5 space-y-2.5">
-          <h4 class="text-xs font-extrabold uppercase text-ink/80">📝 Días con apuntes tuyos</h4>
-          <div class="flex flex-wrap gap-1.5">
-            <button v-for="d in daysWithNotesList" :key="d" @click="selectCalendarDate(d)"
-              :class="selectedDate === d ? 'bg-marigold text-white' : 'bg-cream text-ink border border-sage'"
-              class="text-[11px] font-extrabold px-2.5 py-1 rounded-lg transition">
-              {{ d }}
-            </button>
-          </div>
-        </div>
+      <div class="grid lg:grid-cols-12 gap-6 items-start">
 
-      </aside>
-
-      <!-- =====================================================
-           COLUMNA DERECHA (9 COLUMNAS): SEMILLA DEL DÍA O LAB DEL DÍA
-           ===================================================== -->
-      <div class="lg:col-span-9 space-y-8">
-
-        <!-- MODO 1: SEMILLA DEL DÍA SELECCIONADO -->
-        <template v-if="mode === 'busy'">
+        <!-- BARRA LATERAL IZQUIERDA (3 COLUMNAS EN PC, DESPLEGABLE EN CELULAR): MINI-CALENDARIO -->
+        <aside :class="showMobileCalendar ? 'block' : 'hidden lg:block'" class="lg:col-span-3 space-y-4 lg:sticky lg:top-20">
           
-          <!-- 01. Frase + Analogía y 02. Lectura -->
-          <div class="grid md:grid-cols-12 gap-6 items-stretch">
-            <div class="md:col-span-7 bg-paper border-2 border-sage stamp-card p-7 flex flex-col justify-between">
-              <div>
-                <div class="flex flex-wrap items-center gap-2 mb-3">
-                  <span class="bg-sage/60 text-ink text-xs font-extrabold uppercase px-3 py-1 rounded-full">01 • Frase del Día</span>
-                  <span class="text-xs font-bold text-leaf bg-leaf/10 px-3 py-1 rounded-full">{{ currentDayData.sourceEpisode }}</span>
-                </div>
-                <blockquote class="editorial-font text-2xl text-ink font-semibold leading-snug mb-5">
-                  “{{ currentDayData.quote }}”
-                </blockquote>
-              </div>
-              <div class="bg-cream border-2 border-sunshine/70 rounded-2xl p-4">
-                <div class="text-xs font-extrabold uppercase text-marigold mb-1">💡 Analogía Realista: {{ currentDayData.analogyTitle }}</div>
-                <p class="text-xs sm:text-sm text-ink/90 leading-relaxed font-semibold">{{ currentDayData.analogyText }}</p>
+          <div class="editorial-card border border-sage p-4 space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-xs font-extrabold uppercase text-leaf">📅 Calendario de Estudio</span>
+              <button v-if="selectedDate !== todayStr" @click="goToToday" class="text-[11px] font-extrabold text-marigold hover:underline">
+                Ir a Hoy
+              </button>
+            </div>
+
+            <!-- Navegador de Mes -->
+            <div class="flex justify-between items-center bg-cream px-2.5 py-1.5 rounded-md border border-sage">
+              <button @click="prevMonth" class="text-xs font-extrabold px-2 py-0.5 hover:bg-sage/40 rounded">◀</button>
+              <span class="editorial-font text-xs sm:text-sm font-bold capitalize text-ink">{{ monthLabel }}</span>
+              <button @click="nextMonth" class="text-xs font-extrabold px-2 py-0.5 hover:bg-sage/40 rounded">▶</button>
+            </div>
+
+            <!-- Días de la semana -->
+            <div class="grid grid-cols-7 text-center text-[10px] font-extrabold text-ink/60">
+              <div>Lu</div><div>Ma</div><div>Mi</div><div>Ju</div><div>Vi</div><div>Sá</div><div>Do</div>
+            </div>
+
+            <!-- Cuadrícula del Mes -->
+            <div class="grid grid-cols-7 gap-1">
+              <div v-for="cell in calendarDays" :key="cell.key">
+                <div v-if="cell.empty" class="h-8"></div>
+                <button v-else @click="selectCalendarDate(cell.dateISO)"
+                  :title="cell.topicShort"
+                  :class="[
+                    selectedDate === cell.dateISO ? 'ring-2 ring-marigold bg-sunshine/40 font-extrabold' : 'hover:bg-sage/30',
+                    cell.hasStreak ? 'bg-sage/50 text-ink font-bold' : 'bg-cream/60 text-ink'
+                  ]"
+                  class="w-full h-8 rounded-md text-xs flex flex-col items-center justify-center transition border border-sage/40">
+                  <span class="leading-none">{{ cell.dayNum }}</span>
+                  <div class="flex items-center gap-0.5 mt-0.5">
+                    <span v-if="cell.hasStreak" class="w-1.5 h-1.5 rounded-full bg-leaf"></span>
+                    <span v-if="cell.hasNotes" class="w-1.5 h-1.5 rounded-full bg-marigold"></span>
+                  </div>
+                </button>
               </div>
             </div>
 
-            <div class="md:col-span-5 bg-stripes-soft border-2 border-periwinkle/60 stamp-card p-5 flex flex-col justify-between">
-              <div class="bg-paper border-2 border-periwinkle/50 rounded-2xl p-5 h-full flex flex-col justify-between text-center">
-                <span class="bg-periwinkle/25 text-night text-xs font-extrabold uppercase px-3 py-1 rounded-full self-center">
-                  02 • Qué debo leer hoy
-                </span>
-                <div class="my-4">
-                  <h2 class="editorial-font text-2xl font-bold text-night">{{ currentDayData.readingPassage }}</h2>
-                  <p class="text-xs text-ink/75 mt-2 font-semibold">{{ currentDayData.readingFocus }}</p>
-                </div>
-                <div class="space-y-2">
-                  <button @click="openInReader(currentDayData.targetBook, currentDayData.targetChapter)" 
-                    class="w-full bg-night hover:bg-night/90 text-cream font-extrabold text-xs py-3 px-4 rounded-full shadow transition">
-                    📖 Leer y subrayar {{ currentDayData.targetBook }} {{ currentDayData.targetChapter }}
-                  </button>
-                  <button @click="mode = 'lab'" class="w-full bg-marigold/20 hover:bg-marigold hover:text-white text-marigold font-extrabold text-xs py-2.5 px-4 rounded-full transition">
-                    🌀 Ver el Laboratorio de este día →
-                  </button>
-                </div>
+            <div class="flex justify-between text-[10px] font-bold text-ink/70 pt-2 border-t border-sage/50">
+              <span class="flex items-center gap-1"><i class="w-2 h-2 rounded-full bg-leaf inline-block"></i> Racha</span>
+              <span class="flex items-center gap-1"><i class="w-2 h-2 rounded-full bg-marigold inline-block"></i> Con notas</span>
+            </div>
+
+            <!-- Resumen del Día Activo y Cambio Rápido Semilla / 5 Labs -->
+            <div class="bg-cream border border-sunshine/80 rounded-lg p-3 space-y-2">
+              <div class="text-[10px] font-extrabold uppercase text-marigold">Día seleccionado: {{ selectedDate }}</div>
+              <div class="text-xs font-extrabold text-ink leading-snug">{{ currentDayData.shortTopic }}</div>
+              <div class="grid grid-cols-2 gap-1.5 pt-1">
+                <button @click="mode = 'busy'" :class="mode === 'busy' ? 'bg-leaf text-white' : 'bg-paper text-ink border border-sage'"
+                  class="py-1.5 rounded-md text-[11px] font-extrabold transition">
+                  🌼 Semilla
+                </button>
+                <button @click="mode = 'lab'" :class="mode === 'lab' ? 'bg-marigold text-white' : 'bg-paper text-ink border border-sage'"
+                  class="py-1.5 rounded-md text-[11px] font-extrabold transition">
+                  🌀 5 Labs
+                </button>
               </div>
             </div>
           </div>
 
-          <!-- 03. Qué dato interesante encontraste -->
-          <div class="grid md:grid-cols-3 gap-5">
-            <div class="bg-sage/40 border-2 border-leaf/40 stamp-card p-4">
-              <div class="bg-paper rounded-2xl p-5 h-full">
-                <span class="bg-leaf/15 text-leaf text-xs font-extrabold px-2.5 py-1 rounded-full">🧠 Tesis y Ciencia</span>
+          <!-- Lista rápida de días donde tienes apuntes guardados -->
+          <div v-if="daysWithNotesList.length > 0" class="editorial-card border border-sage p-4 space-y-2">
+            <h4 class="text-xs font-extrabold uppercase text-ink/80">📝 Días con notas tuyas</h4>
+            <div class="flex flex-wrap gap-1.5">
+              <button v-for="d in daysWithNotesList" :key="d" @click="selectCalendarDate(d)"
+                :class="selectedDate === d ? 'bg-marigold text-white' : 'bg-cream text-ink border border-sage'"
+                class="text-[11px] font-extrabold px-2.5 py-1 rounded-md transition">
+                {{ d }}
+              </button>
+            </div>
+          </div>
+
+        </aside>
+
+        <!-- =====================================================
+             COLUMNA PRINCIPAL DERECHA (9 COLUMNAS)
+             ===================================================== -->
+        <div class="lg:col-span-9 space-y-6 min-w-0">
+
+          <!-- =====================================================
+               MODO 1: SEMILLA DIARIA (DISEÑO ORDENADO Y LIMPIO)
+               ===================================================== -->
+          <template v-if="mode === 'busy'">
+            
+            <!-- 01. Frase + Analogía y 02. Qué leer hoy -->
+            <div class="grid md:grid-cols-12 gap-5 items-stretch">
+              <div class="md:col-span-7 editorial-card border border-sage p-5 sm:p-6 flex flex-col justify-between safe-text">
+                <div>
+                  <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="bg-sage/60 text-ink text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md">01 • Frase del Día</span>
+                    <span class="text-[11px] font-bold text-leaf bg-leaf/10 px-2.5 py-1 rounded-md">{{ currentDayData.sourceEpisode }}</span>
+                  </div>
+                  <blockquote class="editorial-font text-xl sm:text-2xl text-ink font-semibold leading-snug mb-5">
+                    “{{ currentDayData.quote }}”
+                  </blockquote>
+                </div>
+                <div class="bg-cream border border-sunshine/80 rounded-lg p-4">
+                  <div class="text-xs font-extrabold uppercase text-marigold mb-1">💡 Analogía Realista: {{ currentDayData.analogyTitle }}</div>
+                  <p class="text-xs sm:text-sm text-ink/90 leading-relaxed font-semibold">{{ currentDayData.analogyText }}</p>
+                </div>
+              </div>
+
+              <div class="md:col-span-5 bg-stripes-soft border border-periwinkle/60 rounded-lg p-4 flex flex-col justify-between">
+                <div class="bg-paper border border-periwinkle/40 rounded-lg p-5 h-full flex flex-col justify-between text-center safe-text">
+                  <span class="bg-periwinkle/25 text-night text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md self-center">
+                    02 • Qué debo leer hoy
+                  </span>
+                  <div class="my-4">
+                    <h2 class="editorial-font text-xl sm:text-2xl font-bold text-night">{{ currentDayData.readingPassage }}</h2>
+                    <p class="text-xs text-ink/75 mt-1.5 font-semibold">{{ currentDayData.readingFocus }}</p>
+                  </div>
+                  <div class="space-y-2">
+                    <button @click="openInReader(currentDayData.targetBook, currentDayData.targetChapter)" 
+                      class="w-full bg-night hover:bg-night/90 text-cream font-extrabold text-xs py-2.5 px-3 rounded-md transition">
+                      📖 Leer {{ currentDayData.targetBook }} {{ currentDayData.targetChapter }} en el Lector
+                    </button>
+                    <button @click="mode = 'lab'" class="w-full bg-marigold/15 hover:bg-marigold hover:text-white text-marigold font-extrabold text-xs py-2 px-3 rounded-md transition">
+                      🌀 Abrir los 5 Enfoques del Lab de hoy →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 03. Qué dato interesante encontraste -->
+            <div class="grid md:grid-cols-3 gap-4">
+              <div class="editorial-card border border-leaf/40 p-5 safe-text">
+                <span class="bg-leaf/15 text-leaf text-[11px] font-extrabold px-2.5 py-1 rounded-md">03.A • Tesis y Ciencia</span>
                 <h3 class="editorial-font text-base font-bold text-ink mt-2.5 mb-1.5">{{ currentDayData.scienceTitle }}</h3>
                 <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">{{ currentDayData.scienceData }}</p>
               </div>
-            </div>
-            <div class="bg-blush/35 border-2 border-blush stamp-card p-4">
-              <div class="bg-paper rounded-2xl p-5 h-full">
-                <span class="bg-blush/40 text-ink text-xs font-extrabold px-2.5 py-1 rounded-full">🤝 Ética y Conducta</span>
+              <div class="editorial-card border border-blush p-5 safe-text">
+                <span class="bg-blush/40 text-ink text-[11px] font-extrabold px-2.5 py-1 rounded-md">03.B • Ética y Conducta</span>
                 <h3 class="editorial-font text-base font-bold text-ink mt-2.5 mb-1.5">{{ currentDayData.ethicsTitle }}</h3>
                 <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">{{ currentDayData.ethicsData }}</p>
               </div>
-            </div>
-            <div class="bg-sunshine/30 border-2 border-sunshine stamp-card p-4">
-              <div class="bg-paper rounded-2xl p-5 h-full">
-                <span class="bg-sunshine/40 text-ink text-xs font-extrabold px-2.5 py-1 rounded-full">👑 Espejo Bíblico</span>
+              <div class="editorial-card border border-sunshine p-5 safe-text">
+                <span class="bg-sunshine/40 text-ink text-[11px] font-extrabold px-2.5 py-1 rounded-md">03.C • Espejo Bíblico</span>
                 <h3 class="editorial-font text-base font-bold text-ink mt-2.5 mb-1.5">{{ currentDayData.characterTitle }}</h3>
                 <p class="text-xs sm:text-sm text-ink/85 leading-relaxed">{{ currentDayData.characterMirror }}</p>
               </div>
             </div>
-          </div>
 
-          <!-- 04. Qué dice la Biblia -->
-          <div class="bg-gingham-blue border-2 border-periwinkle/50 stamp-card p-6 sm:p-8 space-y-4">
-            <span class="bg-night text-cream text-xs font-extrabold uppercase px-3.5 py-1 rounded-full">
-              04 • Qué dice la Biblia (Contexto y Significado de Palabras)
-            </span>
-            <p class="text-sm text-ink bg-paper p-4 rounded-2xl border border-periwinkle/40">
-              <strong>🏛️ Contexto Histórico:</strong> {{ currentDayData.historicalContext }}
-            </p>
-            <div class="grid md:grid-cols-3 gap-4">
-              <div v-for="term in currentDayData.biblicalTerms" :key="term.word" class="bg-paper border-2 border-sage rounded-2xl p-4">
-                <h4 class="editorial-font text-sm font-bold text-ink mb-1">{{ term.word }}</h4>
-                <p class="text-xs text-ink/80 leading-relaxed">{{ term.meaning }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- 05. Qué dice el Estudio -->
-          <div class="bg-night text-cream rounded-3xl p-7 space-y-5 shadow-lg">
-            <div>
-              <span class="bg-sunshine text-ink text-xs font-extrabold uppercase px-3.5 py-1 rounded-full">
-                05 • Qué dice el Estudio (Cuaderno "ESTUDIOS")
+            <!-- 04. Qué dice la Biblia -->
+            <div class="bg-gingham-blue border border-periwinkle/60 rounded-lg p-5 sm:p-6 space-y-4 safe-text">
+              <span class="bg-night text-cream text-[11px] font-extrabold uppercase px-3 py-1 rounded-md inline-block">
+                04 • Qué dice la Biblia (Contexto y Significado de Palabras)
               </span>
-              <p class="text-sm text-cream/90 mt-3 leading-relaxed">{{ currentDayData.studyConnection }}</p>
-            </div>
-            <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div v-for="c in currentDayData.scientificCards" :key="c.title" class="bg-paper text-ink rounded-2xl p-4 border-2 border-sage flex flex-col justify-between">
-                <div>
-                  <div class="text-xl mb-1">{{ c.icon }}</div>
-                  <h4 class="editorial-font text-sm font-bold text-ink mb-1">{{ c.title }}</h4>
-                  <p class="text-xs text-ink/80 leading-relaxed mb-2">{{ c.definition }}</p>
-                </div>
-                <div class="bg-cream border border-sunshine/60 rounded-xl p-2 text-[11px] font-bold text-ink">
-                  <span class="text-leaf block">✨ Puente Espiritual:</span> {{ c.spiritualLink }}
+              <p class="text-xs sm:text-sm text-ink bg-paper p-4 rounded-lg border border-periwinkle/40">
+                <strong>🏛️ Contexto Histórico:</strong> {{ currentDayData.historicalContext }}
+              </p>
+              <div class="grid md:grid-cols-3 gap-3.5">
+                <div v-for="term in currentDayData.biblicalTerms" :key="term.word" class="bg-paper border border-sage rounded-lg p-4">
+                  <h4 class="editorial-font text-sm font-bold text-ink mb-1">{{ term.word }}</h4>
+                  <p class="text-xs text-ink/80 leading-relaxed">{{ term.meaning }}</p>
                 </div>
               </div>
             </div>
-          </div>
 
-          <!-- 06. Aplicación Diaria + Caja Naranja con Clip -->
-          <div class="grid md:grid-cols-12 gap-6 items-center">
-            <div class="md:col-span-6 space-y-2">
-              <span class="bg-leaf/20 text-leaf text-xs font-extrabold uppercase px-3.5 py-1 rounded-full">06 • Cómo lo aplico hoy</span>
-              <p class="text-sm text-ink/90 leading-relaxed bg-paper p-5 rounded-2xl border-2 border-sage">
-                {{ currentDayData.dailyApplication }}
-              </p>
+            <!-- 05. Qué dice el Estudio -->
+            <div class="bg-night text-cream rounded-lg p-5 sm:p-6 space-y-4 safe-text">
+              <div>
+                <span class="bg-sunshine text-ink text-[11px] font-extrabold uppercase px-3 py-1 rounded-md inline-block">
+                  05 • Qué dice el Estudio (Cuaderno "ESTUDIOS")
+                </span>
+                <p class="text-xs sm:text-sm text-cream/90 mt-2.5 leading-relaxed">{{ currentDayData.studyConnection }}</p>
+              </div>
+              <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div v-for="c in currentDayData.scientificCards" :key="c.title" class="bg-paper text-ink rounded-lg p-4 border border-sage flex flex-col justify-between">
+                  <div>
+                    <div class="text-lg mb-1">{{ c.icon }}</div>
+                    <h4 class="editorial-font text-sm font-bold text-ink mb-1">{{ c.title }}</h4>
+                    <p class="text-xs text-ink/80 leading-relaxed mb-2.5">{{ c.definition }}</p>
+                  </div>
+                  <div class="bg-cream border border-sunshine/60 rounded-md p-2 text-[11px] font-bold text-ink">
+                    <span class="text-leaf block">✨ Puente Espiritual:</span> {{ c.spiritualLink }}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div class="md:col-span-6 pt-3">
-              <div class="handdrawn-orange-box p-6 relative">
-                <svg viewBox="0 0 60 90" class="w-10 h-12 absolute -top-5 right-6 z-20">
-                  <path d="M20 55 L20 22 A14 14 0 0 1 48 22 L48 64 A20 20 0 0 1 8 64 L8 30" fill="none" stroke="#F4C542" stroke-width="7" stroke-linecap="round"/>
-                </svg>
-                <span class="text-xs font-extrabold uppercase text-marigold block mb-1">📜 {{ currentDayData.wisdomVerseRef }}</span>
-                <blockquote class="editorial-font text-base font-bold text-ink italic mb-2">“{{ currentDayData.wisdomVerseText }}”</blockquote>
-                <p class="text-xs text-ink/80 font-semibold bg-cream/80 p-2.5 rounded-xl border border-marigold/30">
-                  🔬 {{ currentDayData.wisdomVerseNote }}
+
+            <!-- 06. Cómo lo aplico al día a día + Versículo Escrito (Sin elementos encimados) -->
+            <div class="grid md:grid-cols-12 gap-5 items-stretch">
+              <div class="md:col-span-6 editorial-card border border-sage p-5 flex flex-col justify-between safe-text">
+                <div>
+                  <span class="bg-leaf/20 text-leaf text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md inline-block mb-2">
+                    06 • Cómo lo aplico al día a día
+                  </span>
+                  <p class="text-xs sm:text-sm text-ink/90 leading-relaxed">
+                    {{ currentDayData.dailyApplication }}
+                  </p>
+                </div>
+                <div class="mt-4 pt-3 border-t border-sage/50 text-[11px] text-ink/70">
+                  Práctica libre de religiosidad • Guiada por la Palabra
+                </div>
+              </div>
+
+              <div class="md:col-span-6 orange-highlight-box p-5 flex flex-col justify-between safe-text">
+                <div>
+                  <div class="flex items-center justify-between gap-2 mb-2">
+                    <span class="text-xs font-extrabold uppercase text-marigold">
+                      📜 {{ currentDayData.wisdomVerseRef }}
+                    </span>
+                    <span class="text-sm shrink-0">📎</span>
+                  </div>
+                  <blockquote class="editorial-font text-sm sm:text-base font-bold text-ink italic mb-3 leading-relaxed">
+                    “{{ currentDayData.wisdomVerseText }}”
+                  </blockquote>
+                </div>
+                <p class="text-xs text-ink/85 font-semibold bg-cream p-3 rounded-md border border-marigold/30">
+                  🔬 <strong>Respaldo:</strong> {{ currentDayData.wisdomVerseNote }}
                 </p>
               </div>
             </div>
-          </div>
 
-          <!-- 07. Oración y 08. Reflexiones Guardadas por Fecha -->
-          <div class="grid md:grid-cols-12 gap-6">
-            <div class="md:col-span-5 bg-paper border-2 border-blush stamp-card p-6 flex flex-col justify-between">
-              <div>
-                <span class="bg-blush/50 text-ink text-xs font-extrabold uppercase px-3 py-1 rounded-full">07 • Oración</span>
-                <p class="editorial-font italic text-base text-ink leading-relaxed mt-3">“{{ currentDayData.prayer }}”</p>
-              </div>
-              <div class="mt-4 pt-3 border-t border-blush/40 text-[11px] text-ink/75 space-y-1">
-                <div class="font-extrabold text-ink">📚 Fuentes del día:</div>
-                <div v-for="ref in currentDayData.references" :key="ref">• {{ ref }}</div>
-              </div>
-            </div>
-
-            <div class="md:col-span-7 bg-paper border-2 border-sage stamp-card p-6 space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="bg-sage/60 text-ink text-xs font-extrabold uppercase px-3 py-1 rounded-full">
-                  08 • Reflexiones del {{ selectedDate }}
-                </span>
-                <span class="text-xs font-bold text-leaf">{{ currentReflections.length }} guardadas</span>
-              </div>
-              <p class="text-xs font-bold text-ink">{{ currentDayData.reflectionQuestion }}</p>
-
-              <div class="bg-cream/60 border border-sage rounded-2xl p-3.5 space-y-2.5">
-                <div class="flex gap-2">
-                  <input v-model="newReflectionTitle" type="text" placeholder="Título opcional..." class="flex-1 bg-paper border border-sage rounded-xl px-3 py-1.5 text-xs font-bold">
-                  <select v-model="newReflectionType" class="bg-paper border border-sage rounded-xl px-2.5 py-1.5 text-xs font-extrabold text-leaf">
-                    <option value="💭 Reflexión">💭 Reflexión</option>
-                    <option value="❓ Pregunta">❓ Pregunta</option>
-                    <option value="💡 Revelación">💡 Revelación</option>
-                  </select>
+            <!-- 07. Oración y 08. Reflexiones -->
+            <div class="grid md:grid-cols-12 gap-5">
+              <div class="md:col-span-5 editorial-card border border-blush p-5 flex flex-col justify-between safe-text">
+                <div>
+                  <span class="bg-blush/50 text-ink text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md inline-block">07 • Oración</span>
+                  <p class="editorial-font italic text-sm sm:text-base text-ink leading-relaxed mt-3">“{{ currentDayData.prayer }}”</p>
                 </div>
-                <textarea v-model="newReflectionContent" rows="2" placeholder="Escribe aquí tu reflexión de este día..." class="w-full bg-paper border border-sage rounded-xl p-2.5 text-xs"></textarea>
-                <div class="flex justify-end">
-                  <button @click="addDailyReflection" class="bg-leaf text-white font-extrabold text-xs px-4 py-2 rounded-full">
-                    💾 Guardar Reflexión
-                  </button>
+                <div class="mt-5 pt-3 border-t border-blush/40 text-[11px] text-ink/75 space-y-1">
+                  <div class="font-extrabold text-ink">📚 Fuentes verificadas:</div>
+                  <div v-for="ref in currentDayData.references" :key="ref">• {{ ref }}</div>
                 </div>
               </div>
 
-              <div v-if="currentReflections.length > 0" class="space-y-2 max-h-48 overflow-y-auto">
-                <div v-for="r in currentReflections" :key="r.id" class="bg-cream border border-sage p-3 rounded-xl flex justify-between items-start">
-                  <div>
-                    <span class="text-[10px] font-extrabold bg-sage/50 px-2 py-0.5 rounded-full mr-1">{{ r.type }}</span>
-                    <strong class="text-xs">{{ r.title }}</strong> <span class="text-[10px] text-ink/50">{{ r.time }}</span>
-                    <p class="text-xs text-ink/85 mt-1 whitespace-pre-line">{{ r.content }}</p>
-                  </div>
-                  <button @click="deleteDailyReflection(r.id)" class="text-xs text-ink/40 hover:text-red-500">✕</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Botón de Completar Racha del Día Seleccionado -->
-          <div class="bg-paper border-2 border-sunshine rounded-3xl p-5 flex flex-wrap justify-between items-center gap-4">
-            <div class="text-xs font-bold text-ink">
-              Registro de racha para el día <strong>{{ selectedDate }}</strong>
-            </div>
-            <button @click="toggleStreakForSelectedDate"
-              :class="isSelectedDateCompleted ? 'bg-leaf text-white' : 'bg-sunshine text-ink hover:bg-marigold hover:text-white'"
-              class="px-7 py-3.5 rounded-full font-extrabold text-xs shadow transition">
-              {{ isSelectedDateCompleted ? '✓ Racha Completada en esta fecha (Clic para desmarcar)' : '✨ Marcar Racha Completada (' + selectedDate + ')' }}
-            </button>
-          </div>
-
-        </template>
-
-        <!-- =====================================================
-             MODO 2: LABORATORIO DEL DÍA SELECCIONADO + BARRA LATERAL DE TESIS
-             ===================================================== -->
-        <template v-if="mode === 'lab'">
-          <div class="grid lg:grid-cols-12 gap-6 items-start">
-            
-            <!-- Columna Central del Lab (7 cols) -->
-            <div class="lg:col-span-7 space-y-6">
-              <div class="bg-paper border-2 border-sage stamp-card p-6 space-y-4">
-                <div class="flex flex-wrap justify-between items-center gap-2">
-                  <span class="bg-marigold/20 text-marigold text-xs font-extrabold uppercase px-3 py-1 rounded-full">
-                    {{ currentLab.angle }} • Fecha: {{ selectedDate }}
-                  </span>
-                  <span class="text-[11px] font-bold bg-cream border border-sage px-3 py-1 rounded-full">
-                    📂 {{ currentLab.notebookSources }}
-                  </span>
-                </div>
-
-                <h2 class="editorial-font text-2xl font-bold text-ink">{{ currentLab.title }}</h2>
-                <p class="text-sm text-ink/90 leading-relaxed">{{ currentLab.description }}</p>
-
-                <div class="handdrawn-orange-box p-5">
-                  <h4 class="text-xs font-extrabold uppercase text-marigold mb-1">🧪 Práctica de Laboratorio para este día:</h4>
-                  <p class="text-xs sm:text-sm text-ink font-semibold leading-relaxed">{{ currentLab.exercise }}</p>
-                </div>
-              </div>
-
-              <!-- Cuaderno Multi-Notas del Laboratorio de este Día -->
-              <div class="bg-paper border-2 border-sage stamp-card p-6 space-y-4">
+              <div class="md:col-span-7 editorial-card border border-sage p-5 space-y-3 safe-text">
                 <div class="flex justify-between items-center">
-                  <h3 class="editorial-font text-lg font-bold text-ink">📝 Apuntes de Laboratorio ({{ selectedDate }})</h3>
-                  <span class="text-xs font-extrabold text-leaf">{{ currentLabNotes.length }} notas</span>
+                  <span class="bg-sage/60 text-ink text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md">
+                    08 • Reflexiones ({{ selectedDate }})
+                  </span>
+                  <span class="text-xs font-bold text-leaf">{{ currentReflections.length }} guardadas</span>
                 </div>
+                <p class="text-xs font-bold text-ink">{{ currentDayData.reflectionQuestion }}</p>
 
-                <div class="bg-cream/70 border border-sage rounded-2xl p-4 space-y-3">
-                  <div class="grid sm:grid-cols-2 gap-2">
-                    <input v-model="newLabNoteTitle" type="text" placeholder="Título del apunte..." class="bg-paper border border-sage rounded-xl px-3 py-2 text-xs font-bold">
-                    <select v-model="newLabNoteCategory" class="bg-paper border border-sage rounded-xl px-3 py-2 text-xs font-extrabold text-leaf">
-                      <option value="🔬 Hallazgo Científico">🔬 Hallazgo Científico</option>
-                      <option value="📜 Exégesis Bíblica">📜 Exégesis Bíblica</option>
-                      <option value="📅 Fuentes del Sábado">📅 Fuentes del Sábado</option>
+                <div class="bg-cream/60 border border-sage rounded-lg p-3 space-y-2">
+                  <div class="flex flex-col sm:flex-row gap-2">
+                    <input v-model="newReflectionTitle" type="text" placeholder="Título opcional..." class="flex-1 bg-paper border border-sage rounded-md px-3 py-1.5 text-xs font-bold">
+                    <select v-model="newReflectionType" class="bg-paper border border-sage rounded-md px-2.5 py-1.5 text-xs font-extrabold text-leaf">
+                      <option value="💭 Reflexión">💭 Reflexión</option>
                       <option value="❓ Pregunta">❓ Pregunta</option>
+                      <option value="💡 Revelación">💡 Revelación</option>
                     </select>
                   </div>
-                  <textarea v-model="newLabNoteBody" rows="4" placeholder="Escribe tus hallazgos de este laboratorio..." class="w-full bg-paper border border-sage rounded-xl p-3 text-xs"></textarea>
+                  <textarea v-model="newReflectionContent" rows="2" placeholder="Escribe aquí tu reflexión de hoy..." class="w-full bg-paper border border-sage rounded-md p-2.5 text-xs"></textarea>
                   <div class="flex justify-end">
-                    <button @click="saveNewLabNote" class="bg-leaf text-white font-extrabold text-xs px-5 py-2.5 rounded-full shadow">
-                      💾 + Agregar y Guardar Nota en {{ selectedDate }}
+                    <button @click="addDailyReflection" class="bg-leaf text-white font-extrabold text-xs px-4 py-2 rounded-md">
+                      💾 Guardar Reflexión
                     </button>
                   </div>
                 </div>
 
-                <div v-if="currentLabNotes.length === 0" class="text-center py-6 text-xs text-ink/50 font-semibold">
-                  No hay notas guardadas en el laboratorio del {{ selectedDate }}.
-                </div>
-                <div v-else class="space-y-2.5">
-                  <div v-for="n in currentLabNotes" :key="n.id" class="bg-cream border border-sage p-4 rounded-2xl flex justify-between items-start gap-3">
-                    <div>
-                      <span class="text-[10px] font-extrabold bg-leaf/15 text-leaf px-2 py-0.5 rounded-full mr-1">{{ n.category }}</span>
-                      <strong class="text-xs">{{ n.title }}</strong> <span class="text-[10px] text-ink/50">{{ n.time }}</span>
-                      <p class="text-xs text-ink/85 mt-1.5 whitespace-pre-line">{{ n.body }}</p>
+                <div v-if="currentReflections.length > 0" class="space-y-2 max-h-48 overflow-y-auto">
+                  <div v-for="r in currentReflections" :key="r.id" class="bg-cream border border-sage p-3 rounded-md flex justify-between items-start gap-2">
+                    <div class="min-w-0">
+                      <span class="text-[10px] font-extrabold bg-sage/50 px-2 py-0.5 rounded mr-1">{{ r.type }}</span>
+                      <strong class="text-xs">{{ r.title }}</strong> <span class="text-[10px] text-ink/50">{{ r.time }}</span>
+                      <p class="text-xs text-ink/85 mt-1 whitespace-pre-line">{{ r.content }}</p>
                     </div>
-                    <button @click="deleteLabNote(n.id)" class="text-xs text-ink/40 hover:text-red-500">✕</button>
+                    <button @click="deleteDailyReflection(r.id)" class="text-xs text-ink/40 hover:text-red-500 shrink-0">✕</button>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- Barra Lateral Derecha del Laboratorio (5 cols): Tesis, Libros y Capítulos -->
-            <div class="lg:col-span-5 space-y-4">
-              <div class="bg-paper border-2 border-periwinkle/60 stamp-card p-5 space-y-3">
-                <h4 class="editorial-font text-base font-bold text-night">🎓 Estudios, Tesis y Papers de este Lab</h4>
-                <div v-for="p in currentLab.sidebarPapers" :key="p.title" class="bg-cream border border-periwinkle/40 rounded-xl p-3 space-y-1">
-                  <div class="text-xs font-extrabold text-night">{{ p.title }}</div>
-                  <div class="text-[11px] text-ink/70">{{ p.author }} • {{ p.institution }}</div>
-                  <p class="text-[11px] text-ink/90">{{ p.summary }}</p>
-                  <a :href="p.url" target="_blank" rel="noopener" class="inline-block text-[11px] font-extrabold text-leaf hover:underline">
-                    🔗 Abrir estudio académico →
-                  </a>
+            <!-- Botón de Cierre de Racha -->
+            <div class="editorial-card border border-sunshine p-4 sm:p-5 flex flex-col sm:flex-row justify-between items-center gap-3">
+              <div class="text-xs font-bold text-ink text-center sm:text-left">
+                Confirmar lectura y reflexión del día <strong>{{ selectedDate }}</strong>
+              </div>
+              <button @click="toggleStreakForSelectedDate"
+                :class="isSelectedDateCompleted ? 'bg-leaf text-white' : 'bg-sunshine text-ink hover:bg-marigold hover:text-white'"
+                class="w-full sm:w-auto px-6 py-3 rounded-md font-extrabold text-xs shadow-sm transition">
+                {{ isSelectedDateCompleted ? '✓ Racha Completada (' + selectedDate + ')' : '✨ Completar Racha de Hoy' }}
+              </button>
+            </div>
+
+          </template>
+
+          <!-- =====================================================
+               MODO 2: LABORATORIO DEL DÍA CON LOS 5 ENFOQUES INTEGRADOS
+               ===================================================== -->
+          <template v-if="mode === 'lab'">
+            
+            <!-- Encabezado y Selector de los 5 Enfoques del Día -->
+            <div class="editorial-card border border-sage p-4 sm:p-5 space-y-4">
+              <div class="flex flex-wrap justify-between items-center gap-2">
+                <div>
+                  <span class="bg-marigold/20 text-marigold text-[11px] font-extrabold uppercase px-2.5 py-1 rounded-md">
+                    Laboratorio Diario • {{ selectedDate }}
+                  </span>
+                  <h2 class="editorial-font text-xl sm:text-2xl font-bold text-ink mt-1.5">
+                    🔬 Los 5 Enfoques de hoy: {{ currentDayData.shortTopic }}
+                  </h2>
                 </div>
+                <span class="text-xs font-bold text-ink/70">
+                  Los 5 enfoques se actualizan cada día según el tema
+                </span>
               </div>
 
-              <div class="bg-paper border-2 border-sunshine stamp-card p-5 space-y-2.5">
-                <h4 class="editorial-font text-base font-bold text-ink">📚 Literatura Relacionada</h4>
-                <div v-for="b in currentLab.sidebarBooks" :key="b.title" class="bg-cream/70 border border-sunshine/50 rounded-xl p-3">
-                  <div class="text-xs font-extrabold text-ink">📖 {{ b.title }}</div>
-                  <div class="text-[11px] font-bold text-marigold">{{ b.author }}</div>
-                  <p class="text-[11px] text-ink/80 mt-0.5">{{ b.whyRead }}</p>
-                </div>
-              </div>
-
-              <div class="bg-paper border-2 border-sage stamp-card p-5 space-y-2.5">
-                <h4 class="editorial-font text-base font-bold text-ink">📜 Capítulos Bíblicos Conectados</h4>
-                <div class="flex flex-wrap gap-2">
-                  <button v-for="ch in currentLab.sidebarChapters" :key="ch.label" @click="openInReader(ch.book, ch.chapter)"
-                    class="bg-sage/40 hover:bg-leaf hover:text-white text-ink font-extrabold text-xs px-3 py-1.5 rounded-xl border border-leaf/30 transition">
-                    📖 {{ ch.label }}
-                  </button>
-                </div>
-              </div>
-
-              <div class="bg-blush/30 border-2 border-blush stamp-card p-4 text-xs text-ink font-semibold">
-                💡 <strong>Dato del Cuaderno:</strong> {{ currentLab.sidebarFact }}
+              <!-- PESTAÑAS DE LOS 5 ENFOQUES (Responsive: 1 col en móvil muy chico, 2 en móvil, 5 en escritorio) -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2">
+                <button v-for="(labItem, idx) in currentDayLabs" :key="idx" @click="selectedLabTab = idx"
+                  :class="selectedLabTab === idx ? 'bg-leaf text-white border-leaf shadow-sm' : 'bg-cream/80 text-ink border-sage hover:bg-sage/30'"
+                  class="border p-3 rounded-lg text-left transition flex items-center justify-between sm:flex-col sm:items-start gap-2">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-base">{{ labItem.icon }}</span>
+                    <span class="text-xs font-extrabold leading-tight">{{ labItem.shortTitle }}</span>
+                  </div>
+                  <span v-if="getLabNotesCountForTab(idx) > 0" 
+                    :class="selectedLabTab === idx ? 'bg-white text-leaf' : 'bg-marigold text-white'"
+                    class="text-[10px] font-extrabold px-1.5 py-0.5 rounded">
+                    {{ getLabNotesCountForTab(idx) }} notas
+                  </span>
+                </button>
               </div>
             </div>
 
-          </div>
-        </template>
+            <!-- Contenido del Enfoque Activo + Barra Lateral de Fuentes de ese Enfoque -->
+            <div class="grid xl:grid-cols-12 gap-5 items-start">
+              
+              <!-- Columna del Estudio y Notas del Enfoque (7 cols en pantallas grandes) -->
+              <div class="xl:col-span-7 space-y-5 min-w-0">
+                <div class="editorial-card border border-sage p-5 space-y-4 safe-text">
+                  <div class="flex flex-wrap justify-between items-start gap-2">
+                    <span class="text-xs font-extrabold uppercase text-leaf">{{ currentLab.angle }}</span>
+                    <span class="text-[11px] font-bold bg-cream border border-sage px-2.5 py-1 rounded-md text-ink">
+                      📂 {{ currentLab.notebookSources }}
+                    </span>
+                  </div>
 
+                  <h3 class="editorial-font text-xl font-bold text-ink">{{ currentLab.title }}</h3>
+                  <p class="text-xs sm:text-sm text-ink/90 leading-relaxed">{{ currentLab.description }}</p>
+
+                  <div class="orange-highlight-box p-4">
+                    <h4 class="text-xs font-extrabold uppercase text-marigold mb-1">🧪 Práctica de Investigación ({{ currentLab.shortTitle }}):</h4>
+                    <p class="text-xs sm:text-sm text-ink font-semibold leading-relaxed">{{ currentLab.exercise }}</p>
+                  </div>
+                </div>
+
+                <!-- Gestor de Múltiples Notas para este Día y Enfoque -->
+                <div class="editorial-card border border-sage p-5 space-y-4 safe-text">
+                  <div class="flex flex-wrap justify-between items-center gap-2">
+                    <div>
+                      <h4 class="editorial-font text-base sm:text-lg font-bold text-ink">
+                        📝 Tus Notas en {{ currentLab.shortTitle }} ({{ selectedDate }})
+                      </h4>
+                    </div>
+                    <label class="flex items-center gap-1.5 text-xs font-bold text-ink/75 cursor-pointer">
+                      <input type="checkbox" v-model="filterLabNotesByTab" class="rounded border-sage">
+                      Solo ver notas de este enfoque
+                    </label>
+                  </div>
+
+                  <div class="bg-cream/70 border border-sage rounded-lg p-3.5 space-y-2.5">
+                    <div class="grid sm:grid-cols-2 gap-2">
+                      <input v-model="newLabNoteTitle" type="text" placeholder="Título del apunte..." class="bg-paper border border-sage rounded-md px-3 py-2 text-xs font-bold">
+                      <select v-model="newLabNoteCategory" class="bg-paper border border-sage rounded-md px-3 py-2 text-xs font-extrabold text-leaf">
+                        <option value="🔬 Hallazgo Científico">🔬 Hallazgo Científico</option>
+                        <option value="📜 Exégesis Bíblica">📜 Exégesis Bíblica</option>
+                        <option value="📅 Fuentes del Sábado">📅 Fuentes del Sábado</option>
+                        <option value="❓ Pregunta">❓ Pregunta</option>
+                      </select>
+                    </div>
+                    <textarea v-model="newLabNoteBody" rows="3" :placeholder="'Escribe tu nota para ' + currentLab.shortTitle + '...'" class="w-full bg-paper border border-sage rounded-md p-2.5 text-xs"></textarea>
+                    <div class="flex justify-end">
+                      <button @click="saveNewLabNote" class="bg-leaf text-white font-extrabold text-xs px-4 py-2 rounded-md shadow-sm">
+                        💾 + Agregar y Guardar Nota
+                      </button>
+                    </div>
+                  </div>
+
+                  <div v-if="currentLabNotes.length === 0" class="text-center py-5 text-xs text-ink/50 font-semibold">
+                    Aún no hay notas guardadas para el {{ selectedDate }}.
+                  </div>
+                  <div v-else class="space-y-2.5">
+                    <div v-for="n in currentLabNotes" :key="n.id" class="bg-cream border border-sage p-3.5 rounded-lg flex justify-between items-start gap-2">
+                      <div class="min-w-0">
+                        <div class="flex flex-wrap items-center gap-1.5 mb-1">
+                          <span class="text-[10px] font-extrabold bg-marigold/20 text-marigold px-2 py-0.5 rounded">{{ n.labShortTitle }}</span>
+                          <span class="text-[10px] font-extrabold bg-leaf/15 text-leaf px-2 py-0.5 rounded">{{ n.category }}</span>
+                          <strong class="text-xs text-ink">{{ n.title }}</strong>
+                          <span class="text-[10px] text-ink/50">{{ n.time }}</span>
+                        </div>
+                        <p class="text-xs text-ink/85 whitespace-pre-line leading-relaxed">{{ n.body }}</p>
+                      </div>
+                      <button @click="deleteLabNote(n.id)" class="text-xs text-ink/40 hover:text-red-500 shrink-0">✕</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Barra Lateral Derecha del Enfoque Activo (5 cols en pantallas grandes) -->
+              <div class="xl:col-span-5 space-y-4 min-w-0">
+                <div class="editorial-card border border-periwinkle/60 p-4 sm:p-5 space-y-3 safe-text">
+                  <h4 class="editorial-font text-base font-bold text-night">🎓 Tesis y Estudios de este Enfoque</h4>
+                  <div v-for="p in currentLab.sidebarPapers" :key="p.title" class="bg-cream border border-periwinkle/40 rounded-lg p-3 space-y-1">
+                    <div class="text-xs font-extrabold text-night">{{ p.title }}</div>
+                    <div class="text-[11px] text-ink/70">{{ p.author }} • {{ p.institution }}</div>
+                    <p class="text-[11px] text-ink/90 leading-relaxed">{{ p.summary }}</p>
+                    <a :href="p.url" target="_blank" rel="noopener" class="inline-block text-[11px] font-extrabold text-leaf hover:underline pt-1">
+                      🔗 Ver fuente académica →
+                    </a>
+                  </div>
+                </div>
+
+                <div class="editorial-card border border-sunshine p-4 sm:p-5 space-y-2.5 safe-text">
+                  <h4 class="editorial-font text-base font-bold text-ink">📚 Libros y Literatura Relacionada</h4>
+                  <div v-for="b in currentLab.sidebarBooks" :key="b.title" class="bg-cream/70 border border-sunshine/50 rounded-lg p-3">
+                    <div class="text-xs font-extrabold text-ink">📖 {{ b.title }}</div>
+                    <div class="text-[11px] font-bold text-marigold">{{ b.author }}</div>
+                    <p class="text-[11px] text-ink/80 mt-0.5">{{ b.whyRead }}</p>
+                  </div>
+                </div>
+
+                <div class="editorial-card border border-sage p-4 sm:p-5 space-y-2.5 safe-text">
+                  <h4 class="editorial-font text-base font-bold text-ink">📜 Capítulos Bíblicos Conectados</h4>
+                  <div class="flex flex-wrap gap-1.5">
+                    <button v-for="ch in currentLab.sidebarChapters" :key="ch.label" @click="openInReader(ch.book, ch.chapter)"
+                      class="bg-sage/40 hover:bg-leaf hover:text-white text-ink font-extrabold text-xs px-3 py-1.5 rounded-md border border-leaf/30 transition">
+                      📖 {{ ch.label }}
+                    </button>
+                  </div>
+                </div>
+
+                <div class="bg-blush/30 border border-blush rounded-lg p-4 text-xs text-ink font-semibold safe-text">
+                  💡 <strong>Conexión Clave:</strong> {{ currentLab.sidebarFact }}
+                </div>
+              </div>
+
+            </div>
+          </template>
+
+        </div>
       </div>
     </div>
 
     <!-- =====================================================
-         VISTA 3: JARDÍN DE LECTURA BÍBLICA COMPLETA (LECTOR REAL)
+         VISTA 3: JARDÍN DE LECTURA BÍBLICA COMPLETA
          ===================================================== -->
-    <main v-if="mode === 'map'" class="max-w-7xl mx-auto px-4 sm:px-8 pt-6 space-y-6">
-      <div class="bg-paper border-2 border-sage stamp-card p-6 flex flex-wrap justify-between items-center gap-4">
+    <main v-if="mode === 'map'" class="max-w-7xl mx-auto px-3 sm:px-6 pt-5 space-y-5">
+      <div class="editorial-card border border-sage p-5 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="editorial-font text-2xl font-bold text-ink">📖 Jardín de Lectura Bíblica (66 Libros)</h2>
-          <p class="text-xs text-ink/75">Marca o desmarca capítulos específicos, subraya versículos y guarda apuntes.</p>
+          <h2 class="editorial-font text-xl sm:text-2xl font-bold text-ink">📖 Jardín de Lectura Bíblica (66 Libros)</h2>
+          <p class="text-xs text-ink/75">Selecciona capítulos exactos, subraya versículos y agrega notas.</p>
         </div>
-        <div class="text-right">
-          <div class="editorial-font text-xl font-bold text-ink">{{ totalReadChapters }} / 1189 Capítulos ({{ progressPercentage }}%)</div>
+        <div class="editorial-font text-lg sm:text-xl font-bold text-leaf">
+          {{ totalReadChapters }} / 1189 Capítulos ({{ progressPercentage }}%)
         </div>
       </div>
 
-      <div class="grid lg:grid-cols-12 gap-8 items-start">
+      <div class="grid lg:grid-cols-12 gap-6 items-start">
         <div class="lg:col-span-4 space-y-4">
-          <div class="bg-paper border-2 border-sage rounded-3xl p-4 space-y-3">
-            <input v-model="bookSearch" type="text" placeholder="🔍 Buscar libro..." class="w-full bg-cream border border-sage rounded-xl px-3 py-2 text-xs font-bold">
+          <div class="editorial-card border border-sage p-4 space-y-3">
+            <input v-model="bookSearch" type="text" placeholder="🔍 Buscar libro..." class="w-full bg-cream border border-sage rounded-md px-3 py-2 text-xs font-bold">
             <div class="flex gap-1">
-              <button @click="testamentFilter = 'all'" :class="testamentFilter === 'all' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1 rounded-lg text-[11px] font-extrabold">Todos</button>
-              <button @click="testamentFilter = 'OT'" :class="testamentFilter === 'OT' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1 rounded-lg text-[11px] font-extrabold">Antiguo</button>
-              <button @click="testamentFilter = 'NT'" :class="testamentFilter === 'NT' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1 rounded-lg text-[11px] font-extrabold">Nuevo</button>
+              <button @click="testamentFilter = 'all'" :class="testamentFilter === 'all' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1.5 rounded-md text-[11px] font-extrabold">Todos</button>
+              <button @click="testamentFilter = 'OT'" :class="testamentFilter === 'OT' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1.5 rounded-md text-[11px] font-extrabold">Antiguo</button>
+              <button @click="testamentFilter = 'NT'" :class="testamentFilter === 'NT' ? 'bg-leaf text-white' : 'bg-cream'" class="flex-1 py-1.5 rounded-md text-[11px] font-extrabold">Nuevo</button>
             </div>
-            <div class="max-h-64 overflow-y-auto space-y-1 pr-1">
+            <div class="max-h-60 overflow-y-auto space-y-1 pr-1">
               <button v-for="b in filteredBooks" :key="b.name" @click="selectBookForReading(b)"
                 :class="activeBook.name === b.name ? 'bg-leaf/20 border-leaf' : 'bg-cream/60 border-sage/60'"
-                class="w-full border p-2.5 rounded-xl flex justify-between items-center text-xs font-extrabold">
+                class="w-full border p-2 rounded-md flex justify-between items-center text-xs font-extrabold">
                 <span>{{ b.name }}</span>
-                <span class="text-[11px] bg-paper px-2 py-0.5 rounded-full border border-sage">{{ getReadArray(b.name).length }}/{{ b.total }}</span>
+                <span class="text-[11px] bg-paper px-2 py-0.5 rounded border border-sage">{{ getReadArray(b.name).length }}/{{ b.total }}</span>
               </button>
             </div>
           </div>
 
-          <div class="bg-paper border-2 border-periwinkle/60 rounded-3xl p-4 space-y-3">
+          <div class="editorial-card border border-periwinkle/60 p-4 space-y-3">
             <div class="flex justify-between items-center">
               <h4 class="editorial-font text-base font-bold text-night">Capítulos de {{ activeBook.name }}</h4>
               <div class="flex gap-1">
-                <button @click="markAllBookChapters(activeBook)" class="text-[10px] font-extrabold bg-sage/50 px-2 py-1 rounded">Todos</button>
-                <button @click="clearAllBookChapters(activeBook)" class="text-[10px] font-extrabold bg-blush/50 px-2 py-1 rounded">Ninguno</button>
+                <button @click="markAllBookChapters(activeBook)" class="text-[10px] font-extrabold bg-sage/50 px-2 py-1 rounded">Marcar todos</button>
+                <button @click="clearAllBookChapters(activeBook)" class="text-[10px] font-extrabold bg-blush/50 px-2 py-1 rounded">Desmarcar</button>
               </div>
             </div>
-            <div class="grid grid-cols-6 gap-1.5 max-h-56 overflow-y-auto p-1">
+            <div class="grid grid-cols-6 gap-1.5 max-h-52 overflow-y-auto p-1">
               <button v-for="ch in activeBook.total" :key="ch" @click="loadChapter(activeBook, ch)"
                 :class="[
                   isChapterRead(activeBook.name, ch) ? 'bg-leaf text-white font-extrabold' : 'bg-cream text-ink',
                   activeChapter === ch ? 'ring-2 ring-night' : ''
                 ]"
-                class="h-8 rounded-xl text-xs border border-sage/60">{{ ch }}</button>
+                class="h-8 rounded-md text-xs border border-sage/60">{{ ch }}</button>
             </div>
           </div>
         </div>
 
-        <div class="lg:col-span-8 bg-paper border-2 border-sage stamp-card p-6 space-y-4">
+        <div class="lg:col-span-8 editorial-card border border-sage p-5 space-y-4">
           <div class="flex flex-wrap justify-between items-center gap-3 pb-3 border-b border-sage">
-            <h3 class="editorial-font text-2xl font-bold text-ink">{{ activeBook.name }} {{ activeChapter }}</h3>
+            <h3 class="editorial-font text-xl sm:text-2xl font-bold text-ink">{{ activeBook.name }} — Capítulo {{ activeChapter }}</h3>
             <button @click="toggleChapterRead(activeBook.name, activeChapter)"
               :class="isChapterRead(activeBook.name, activeChapter) ? 'bg-leaf text-white' : 'bg-cream text-ink border border-sage'"
-              class="px-4 py-2 rounded-full text-xs font-extrabold">
+              class="px-4 py-2 rounded-md text-xs font-extrabold">
               {{ isChapterRead(activeBook.name, activeChapter) ? '✓ Capítulo Leído (Clic para desmarcar)' : '○ Marcar Capítulo como Leído' }}
             </button>
           </div>
 
           <div v-if="loadingVerses" class="py-12 text-center text-xs font-bold">Cargando versículos...</div>
-          <div v-else class="space-y-2.5 max-h-[500px] overflow-y-auto pr-1">
+          <div v-else class="space-y-2 max-h-[500px] overflow-y-auto pr-1">
             <div v-for="v in chapterVerses" :key="v.verse"
               @click="selectedVerseNum = (selectedVerseNum === v.verse ? null : v.verse)"
               :class="getHighlightClass(activeBook.name, activeChapter, v.verse)"
-              class="p-3 rounded-2xl border border-sage/40 cursor-pointer">
+              class="p-3 rounded-lg border border-sage/40 cursor-pointer">
               <div class="flex gap-2.5">
                 <span class="text-xs font-extrabold text-leaf">{{ v.verse }}</span>
                 <p class="text-sm text-ink leading-relaxed">{{ v.text }}</p>
               </div>
-              <div v-if="getVerseNote(activeBook.name, activeChapter, v.verse)" class="mt-2 ml-6 bg-cream p-2 rounded-xl border-l-4 border-marigold text-xs font-semibold">
+              <div v-if="getVerseNote(activeBook.name, activeChapter, v.verse)" class="mt-2 ml-5 bg-cream p-2 rounded-md border-l-4 border-marigold text-xs font-semibold">
                 📝 {{ getVerseNote(activeBook.name, activeChapter, v.verse) }}
               </div>
               <div v-if="selectedVerseNum === v.verse" @click.stop class="mt-3 pt-2 border-t border-sage flex flex-wrap gap-2 items-center justify-between">
                 <div class="flex items-center gap-1.5">
-                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-sunshine/40')" class="w-5 h-5 rounded-full bg-sunshine"></button>
-                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-sage/60')" class="w-5 h-5 rounded-full bg-sage"></button>
-                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-blush/50')" class="w-5 h-5 rounded-full bg-blush"></button>
+                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-sunshine/40')" class="w-5 h-5 rounded bg-sunshine"></button>
+                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-sage/60')" class="w-5 h-5 rounded bg-sage"></button>
+                  <button @click="setHighlight(activeBook.name, activeChapter, v.verse, 'bg-blush/50')" class="w-5 h-5 rounded bg-blush"></button>
                   <button @click="setHighlight(activeBook.name, activeChapter, v.verse, '')" class="text-[10px] font-bold px-1">Quitar</button>
                 </div>
-                <button @click="saveFavoriteVerse(activeBook.name, activeChapter, v.verse, v.text)" class="bg-marigold text-white text-[11px] font-extrabold px-3 py-1 rounded-full">⭐ Guardar</button>
+                <button @click="saveFavoriteVerse(activeBook.name, activeChapter, v.verse, v.text)" class="bg-marigold text-white text-[11px] font-extrabold px-3 py-1 rounded-md">⭐ Guardar</button>
                 <div class="w-full flex gap-1.5 mt-1">
-                  <input v-model="tempVerseNote" type="text" placeholder="Nota sobre este versículo..." class="flex-1 bg-paper border border-sage rounded-xl px-2.5 py-1 text-xs">
-                  <button @click="saveNoteForVerse(activeBook.name, activeChapter, v.verse)" class="bg-leaf text-white text-xs font-extrabold px-3 py-1 rounded-xl">Guardar</button>
+                  <input v-model="tempVerseNote" type="text" placeholder="Nota sobre este versículo..." class="flex-1 bg-paper border border-sage rounded-md px-2.5 py-1 text-xs">
+                  <button @click="saveNoteForVerse(activeBook.name, activeChapter, v.verse)" class="bg-leaf text-white text-xs font-extrabold px-3 py-1 rounded-md">Guardar</button>
                 </div>
               </div>
             </div>
@@ -586,42 +655,42 @@
     </main>
 
     <!-- =====================================================
-         VISTA 4: MI MEMORIA (SOLO DÍAS CON NOTAS + VERSÍCULOS)
+         VISTA 4: MI MEMORIA
          ===================================================== -->
-    <main v-if="mode === 'memory'" class="max-w-7xl mx-auto px-4 sm:px-8 pt-6 space-y-6">
-      <div class="bg-paper border-2 border-sage stamp-card p-6 flex flex-wrap justify-between items-center gap-4">
+    <main v-if="mode === 'memory'" class="max-w-7xl mx-auto px-3 sm:px-6 pt-5 space-y-5">
+      <div class="editorial-card border border-sage p-5 flex flex-wrap justify-between items-center gap-3">
         <div>
-          <h2 class="editorial-font text-2xl font-bold text-ink">🗂️ Mi Memoria Inteligente (Sin ruido)</h2>
-          <p class="text-xs text-ink/75">Solo se almacenan los días en los que escribiste reflexiones, apuntes de laboratorio o guardaste versículos.</p>
+          <h2 class="editorial-font text-xl sm:text-2xl font-bold text-ink">🗂️ Mi Memoria de Estudio</h2>
+          <p class="text-xs text-ink/75">Solo se guardan los días donde escribiste reflexiones, notas en cualquiera de los 5 enfoques o versículos.</p>
         </div>
-        <button @click="exportAllMemory" class="bg-night text-cream font-extrabold text-xs px-5 py-2.5 rounded-full">
+        <button @click="exportAllMemory" class="bg-night text-cream font-extrabold text-xs px-4 py-2.5 rounded-md">
           ⬇️ Descargar Respaldo (.JSON)
         </button>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-6">
-        <div class="bg-paper border-2 border-sage stamp-card p-6 space-y-3">
-          <h3 class="editorial-font text-lg font-bold text-ink">📅 Días con Notas Guardadas ({{ daysWithNotesList.length }})</h3>
+      <div class="grid lg:grid-cols-2 gap-5">
+        <div class="editorial-card border border-sage p-5 space-y-3">
+          <h3 class="editorial-font text-lg font-bold text-ink">📅 Días con Apuntes Guardados ({{ daysWithNotesList.length }})</h3>
           <div v-if="daysWithNotesList.length === 0" class="text-xs text-ink/50 py-6 text-center">Aún no has guardado notas en ningún día.</div>
-          <div v-for="dateKey in daysWithNotesList" :key="dateKey" class="bg-cream border border-sage p-4 rounded-2xl space-y-2">
+          <div v-for="dateKey in daysWithNotesList" :key="dateKey" class="bg-cream border border-sage p-4 rounded-lg space-y-2">
             <div class="flex justify-between items-center">
               <span class="text-xs font-extrabold text-leaf">📌 Fecha: {{ dateKey }}</span>
               <button @click="selectCalendarDate(dateKey); mode = 'lab'" class="text-[11px] font-extrabold text-marigold hover:underline">
-                Viajar a este día →
+                Abrir este día →
               </button>
             </div>
-            <div v-for="r in notesByDate[dateKey].reflections" :key="r.id" class="text-xs bg-paper p-2.5 rounded-xl border border-sage/50">
+            <div v-for="r in notesByDate[dateKey].reflections" :key="r.id" class="text-xs bg-paper p-2.5 rounded-md border border-sage/50">
               <strong>{{ r.type }} - {{ r.title }}:</strong> {{ r.content }}
             </div>
-            <div v-for="l in notesByDate[dateKey].labNotes" :key="l.id" class="text-xs bg-paper p-2.5 rounded-xl border border-marigold/40">
-              <strong>{{ l.category }} ({{ l.title }}):</strong> {{ l.body }}
+            <div v-for="l in notesByDate[dateKey].labNotes" :key="l.id" class="text-xs bg-paper p-2.5 rounded-md border border-marigold/40">
+              <strong>[{{ l.labShortTitle }}] {{ l.category }} ({{ l.title }}):</strong> {{ l.body }}
             </div>
           </div>
         </div>
 
-        <div class="bg-paper border-2 border-sunshine stamp-card p-6 space-y-3">
+        <div class="editorial-card border border-sunshine p-5 space-y-3">
           <h3 class="editorial-font text-lg font-bold text-ink">⭐ Versículos Guardados ({{ savedVerses.length }})</h3>
-          <div v-for="sv in savedVerses" :key="sv.id" class="bg-cream border border-sunshine p-3.5 rounded-2xl flex justify-between items-start">
+          <div v-for="sv in savedVerses" :key="sv.id" class="bg-cream border border-sunshine p-3.5 rounded-lg flex justify-between items-start gap-2">
             <div>
               <button @click="openInReader(sv.book, sv.chapter)" class="text-xs font-extrabold text-leaf hover:underline">
                 📖 {{ sv.book }} {{ sv.chapter }}:{{ sv.verse }}
@@ -636,7 +705,6 @@
 
   </div>
 
-  <!-- Scripts modulares en orden lógico -->
   <script src="./js/data.js"></script>
   <script src="./js/storage.js"></script>
   <script src="./js/app.js"></script>
