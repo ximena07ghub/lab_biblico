@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogosLab | Racha & Laboratorio Bíblico</title>
+  <meta name="theme-color" content="#0f172a">
+  <!-- Tailwind CSS & Vue 3 CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #090d16; color: #f1f5f9; }
+    .serif-quote { font-family: 'Playfair Display', serif; }
+  </style>
+</head>
+<body class="min-h-screen pb-16">
+  <div id="app" class="max-w-5xl mx-auto px-4 pt-6">
+    
+    <!-- HEADER Y CONMUTADOR DE MOOD -->
+    <header class="flex flex-col md:flex-row justify-between items-center gap-4 bg-slate-900/90 border border-slate-800 p-5 rounded-2xl shadow-xl mb-6 sticky top-3 z-30 backdrop-blur-md">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🧬</span>
+          <h1 class="text-xl font-bold bg-gradient-to-r from-amber-300 via-teal-200 to-indigo-400 bg-clip-text text-transparent">
+            LogosLab: Racha & Laboratorio
+          </h1>
+        </div>
+        <p class="text-xs text-slate-400 mt-1">Conectado a tu cuaderno "ESTUDIOS" • Sincronización cada Sábado</p>
+      </div>
+
+      <!-- Selector de Modo (Defensor del Usuario) -->
+      <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+        <button @click="mode = 'busy'" 
+          :class="mode === 'busy' ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : 'text-slate-400 hover:text-slate-200'"
+          class="px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          ⚡ Día Ocupado (Racha)
+        </button>
+        <button @click="mode = 'lab'" 
+          :class="mode === 'lab' ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40' : 'text-slate-400 hover:text-slate-200'"
+          class="px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          🔬 Día Libre (Laboratorio)
+        </button>
+        <button @click="mode = 'map'" 
+          :class="mode === 'map' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40' : 'text-slate-400 hover:text-slate-200'"
+          class="px-4 py-2 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5">
+          🗺️ Mapa Bíblico ({{ progressPercentage }}%)
+        </button>
+      </div>
+
+      <!-- Contador de Racha con Gracia -->
+      <div class="flex items-center gap-3 bg-slate-950/80 px-4 py-2 rounded-xl border border-amber-500/30">
+        <div class="text-2xl">🔥</div>
+        <div>
+          <div class="text-sm font-bold text-amber-300">{{ streak }} Días Sembrados</div>
+          <div class="text-[10px] text-emerald-400">🛡️ Racha de Gracia Activa (Sin penalización)</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- ==========================================
+         MODO 1: DÍA OCUPADO (ESTRUCTURA IMAGEN)
+         ========================================== -->
+    <main v-if="mode === 'busy'" class="space-y-5">
+      
+      <!-- 1. FRASE DEL DÍA + ANALOGÍA REALISTA -->
+      <section class="bg-gradient-to-br from-slate-900 to-slate-900/60 border border-amber-500/30 rounded-2xl p-6 shadow-lg">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">1. Frase del Día + Analogía Realista</span>
+          <span class="text-xs text-slate-400 bg-slate-800 px-2.5 py-1 rounded-full">{{ currentCard.sourceEpisode }}</span>
+        </div>
+        <blockquote class="serif-quote text-xl md:text-2xl text-slate-100 italic my-3 leading-relaxed">
+          "{{ currentCard.quote }}"
+        </blockquote>
+        <div class="mt-4 bg-slate-950/70 border-l-4 border-teal-400 p-4 rounded-r-xl">
+          <h4 class="text-xs font-bold text-teal-300 uppercase mb-1">💡 Analogía Realista ({{ currentCard.analogyTitle }}):</h4>
+          <p class="text-sm text-slate-300 leading-relaxed">{{ currentCard.analogyText }}</p>
+        </div>
+      </section>
+
+      <!-- 2. QUÉ DEBO LEER HOY -->
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <span class="text-xs font-bold uppercase tracking-wider text-indigo-400">2. Qué debo leer hoy</span>
+          <h2 class="text-lg font-bold text-white mt-1">📖 {{ currentCard.readingPassage }}</h2>
+          <p class="text-xs text-slate-400 mt-0.5">{{ currentCard.readingFocus }}</p>
+        </div>
+        <button @click="markBookChapterQuick" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition">
+          ✓ Marcar lectura en mi Mapa Global
+        </button>
+      </section>
+
+      <!-- 3. QUÉ DATO INTERESANTE ENCONTRASTE (Ciencia, Ética y Personaje) -->
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-teal-400">3. Qué dato interesante encontraste (Ciencia, Ética y Espejo Bíblico)</span>
+        
+        <div class="grid md:grid-cols-3 gap-4 pt-2">
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+            <div class="text-xs font-bold text-teal-300 mb-1">🧠 Tesis Neurobiológica</div>
+            <p class="text-xs text-slate-300 leading-relaxed">{{ currentCard.scienceData }}</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+            <div class="text-xs font-bold text-amber-300 mb-1">🤝 Conducta Humana y Ética Social</div>
+            <p class="text-xs text-slate-300 leading-relaxed">{{ currentCard.ethicsData }}</p>
+          </div>
+          <div class="bg-slate-950 p-4 rounded-xl border border-slate-800/80">
+            <div class="text-xs font-bold text-indigo-300 mb-1">👑 Personajes de la Historia Bíblica</div>
+            <p class="text-xs text-slate-300 leading-relaxed">{{ currentCard.characterMirror }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. QUÉ DICE LA BIBLIA (Contexto y Significado de Palabras) -->
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-amber-400">4. Qué dice la Biblia (Contexto Histórico y Significado de Palabras)</span>
+        <p class="text-sm text-slate-300 bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <strong class="text-amber-300">🏛️ Contexto Histórico:</strong> {{ currentCard.historicalContext }}
+        </p>
+        <div class="space-y-2">
+          <h4 class="text-xs font-bold text-slate-400 uppercase">📜 Significado Profundo de las Palabras Originales:</h4>
+          <div v-for="term in currentCard.biblicalTerms" :key="term.word" class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/70">
+            <span class="text-sm font-bold text-amber-300">{{ term.word }}:</span>
+            <span class="text-xs text-slate-300 ml-1">{{ term.meaning }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. QUÉ DICE EL ESTUDIO (+ Puente Científico-Espiritual) -->
+      <section class="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-purple-400">5. Qué dice el Estudio (Cuaderno "ESTUDIOS" + Desglose de Conceptos)</span>
+        <p class="text-sm text-slate-200 leading-relaxed">{{ currentCard.studyConnection }}</p>
+        
+        <div class="grid md:grid-cols-2 gap-3 pt-2">
+          <div v-for="concept in currentCard.scientificDefinitions" :key="concept.title" class="bg-purple-950/20 border border-purple-500/30 p-4 rounded-xl">
+            <h5 class="text-xs font-bold text-purple-300 mb-1">🔬 {{ concept.title }}</h5>
+            <p class="text-xs text-slate-300 leading-relaxed mb-2">{{ concept.definition }}</p>
+            <p class="text-xs text-amber-200/90 bg-slate-950/70 p-2 rounded-lg"><strong>Puente Espiritual:</strong> {{ concept.spiritualLink }}</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. CÓMO LO APLICO AL DÍA A DÍA (+ Proverbio/Salmo escrito) -->
+      <section class="bg-slate-900 border border-emerald-500/30 rounded-2xl p-6 space-y-4">
+        <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">6. Cómo lo aplico al día a día (Sin religiosidad)</span>
+        <p class="text-sm text-slate-200 leading-relaxed">{{ currentCard.dailyApplication }}</p>
+        
+        <div class="bg-emerald-950/20 border-l-4 border-emerald-400 p-4 rounded-r-xl">
+          <div class="text-xs font-bold text-emerald-300 mb-1">📖 {{ currentCard.wisdomVerseRef }} (Escrito completo):</div>
+          <p class="serif-quote italic text-sm text-slate-100 mb-2">"{{ currentCard.wisdomVerseText }}"</p>
+          <p class="text-xs text-slate-400">{{ currentCard.wisdomVerseNote }}</p>
+        </div>
+      </section>
+
+      <!-- 7. ORACIÓN Y 8. REFLEXIÓN -->
+      <div class="grid md:grid-cols-2 gap-5">
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-amber-400">7. Oración</span>
+          <p class="text-sm text-slate-200 italic mt-2 leading-relaxed">"{{ currentCard.prayer }}"</p>
+        </section>
+
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-5">
+          <span class="text-xs font-bold uppercase tracking-wider text-teal-400">8. Reflexión Personal</span>
+          <p class="text-xs text-slate-300 mt-2 mb-3">{{ currentCard.reflectionQuestion }}</p>
+          <textarea v-model="reflectionNote" rows="2" placeholder="Escribe aquí tu reflexión rápida de hoy..." 
+            class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200 focus:outline-none focus:border-teal-500"></textarea>
+        </section>
+      </div>
+
+      <!-- REFERENCIAS Y BOTÓN DE COMPLETAR RACHA -->
+      <section class="bg-slate-950 border border-slate-800 rounded-2xl p-5 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="text-[11px] text-slate-400 space-y-1">
+          <div class="font-bold text-slate-300">📚 Fuentes verificadas (Cero Wikipedia):</div>
+          <div v-for="ref in currentCard.references" :key="ref">• {{ ref }}</div>
+        </div>
+        <button @click="completeDailyStreak" 
+          :class="completedToday ? 'bg-emerald-600 text-white' : 'bg-gradient-to-r from-amber-500 to-teal-500 text-slate-950 hover:opacity-95'"
+          class="px-6 py-3 rounded-xl font-bold text-sm shadow-lg transition shrink-0">
+          {{ completedToday ? '✓ ¡Semilla Diaria Completada!' : '🔥 Completar Racha de Hoy (+1 Día)' }}
+        </button>
+      </section>
+    </main>
+
+    <!-- ==========================================
+         MODO 2: LABORATORIO DE ESTUDIO (5 CONCEPTOS)
+         ========================================== -->
+    <main v-if="mode === 'lab'" class="space-y-6">
+      <div class="bg-slate-900 border border-teal-500/30 rounded-2xl p-6">
+        <h2 class="text-lg font-bold text-teal-300">🔬 Laboratorio de Estudio Profundo (Sin presión de racha)</h2>
+        <p class="text-xs text-slate-400 mt-1">
+          Espacio para tus días libres y actualizaciones de cada sábado. Selecciona uno de los 5 enfoques creativos basados en tu cuaderno "ESTUDIOS":
+        </p>
+
+        <div class="grid md:grid-cols-5 gap-2.5 mt-4">
+          <button v-for="(lab, index) in labModules" :key="index" @click="selectedLab = index"
+            :class="selectedLab === index ? 'bg-teal-500/20 border-teal-400 text-teal-200' : 'bg-slate-950 border-slate-800 text-slate-400'"
+            class="border p-3 rounded-xl text-left transition">
+            <div class="text-lg mb-1">{{ lab.icon }}</div>
+            <div class="text-xs font-bold leading-snug">{{ lab.shortTitle }}</div>
+          </button>
+        </div>
+
+        <!-- Contenido del Laboratorio Seleccionado -->
+        <div class="mt-6 bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[11px] uppercase tracking-wider text-teal-400 font-bold">{{ labModules[selectedLab].angle }}</span>
+              <h3 class="text-lg font-bold text-white mt-0.5">{{ labModules[selectedLab].title }}</h3>
+            </div>
+            <span class="text-xs bg-slate-900 border border-slate-700 px-3 py-1 rounded-full text-slate-300">
+              {{ labModules[selectedLab].notebookSources }}
+            </span>
+          </div>
+          <p class="text-sm text-slate-300 leading-relaxed">{{ labModules[selectedLab].description }}</p>
+          <div class="bg-slate-900/90 p-4 rounded-xl border border-slate-800">
+            <h4 class="text-xs font-bold text-amber-300 uppercase mb-1">🧪 Experimento / Investigación de Día Libre:</h4>
+            <p class="text-xs text-slate-300 leading-relaxed">{{ labModules[selectedLab].exercise }}</p>
+          </div>
+          <div>
+            <label class="text-xs font-bold text-slate-400 block mb-1.5">📝 Tus Apuntes de Laboratorio y Hallazgos del Sábado (Se guardan automáticamente):</label>
+            <textarea v-model="labNotes[selectedLab]" @input="saveLabNotes" rows="4" 
+              placeholder="Anota aquí tus descubrimientos, palabras griegas/hebreas o conexiones nuevas de tus fuentes del sábado..."
+              class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-teal-400"></textarea>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- ==========================================
+         MODO 3: MAPA GLOBAL DE LA BIBLIA (66 LIBROS)
+         ========================================== -->
+    <main v-if="mode === 'map'" class="space-y-6">
+      <div class="bg-slate-900 border border-indigo-500/30 rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-indigo-300">🗺️ Mi Progreso Real en toda la Biblia</h2>
+            <p class="text-xs text-slate-400">
+              Haz clic en los libros o capítulos que ya has leído antes (aunque hayan sido salteados) para ver tu avance real.
+            </p>
+          </div>
+          <div class="text-right">
+            <div class="text-xl font-bold text-white">{{ totalReadChapters }} / 1189 Capítulos ({{ progressPercentage }}%)</div>
+            <div class="text-xs text-indigo-400">Meta realista: Paso a paso, escudriñando con propósito</div>
+          </div>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden border border-slate-800 mb-6">
+          <div class="bg-gradient-to-r from-indigo-500 via-teal-400 to-amber-400 h-full transition-all duration-500" :style="{ width: progressPercentage + '%' }"></div>
+        </div>
+
+        <!-- Cuadrícula de Libros -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div v-for="book in bibleBooks" :key="book.name" class="bg-slate-950 border border-slate-800 p-3 rounded-xl flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <span class="text-xs font-bold text-slate-200">{{ book.name }}</span>
+              <span class="text-[11px] text-amber-300 font-semibold">{{ book.read }}/{{ book.total }}</span>
+            </div>
+            <div class="w-full bg-slate-900 h-1.5 rounded-full overflow-hidden mb-2.5">
+              <div class="bg-teal-400 h-full" :style="{ width: ((book.read / book.total) * 100) + '%' }"></div>
+            </div>
+            <div class="flex gap-1.5">
+              <button @click="addChapter(book, 1)" class="flex-1 bg-slate-900 hover:bg-slate-800 text-[11px] py-1 rounded text-teal-300 border border-slate-800">+1 cap</button>
+              <button @click="completeBook(book)" class="bg-indigo-950/60 hover:bg-indigo-900/60 text-[10px] px-2 py-1 rounded text-indigo-300 border border-indigo-800/50">Todo</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+  <script>
+    const { createApp } = Vue;
+
+    createApp({
+      data() {
+        return {
+          mode: 'busy',
+          streak: Number(localStorage.getItem('logos_streak') || 1),
+          completedToday: false,
+          reflectionNote: localStorage.getItem('logos_reflection_today') || '',
+          selectedLab: 0,
+          labNotes: JSON.parse(localStorage.getItem('logos_lab_notes') || '["","","","",""]'),
+          currentCard: {
+            sourceEpisode: 'Episodio 34 & 34.1 • Cuerpo Incorruptible',
+            quote: 'El espíritu del hombre recibe la señal del cielo, el alma la procesa, el cerebro la traduce y el cuerpo la manifiesta en la tierra.',
+            analogyTitle: 'Hardware vs. Firmware Original',
+            analogyText: 'Tu cerebro físico es como el procesador de una computadora y tu mente es el código que ejecuta. Si corres bucles infinitos de culpa, temor o prisa, el hardware se sobrecalienta y desgasta sus circuitos (cortisol e inflamación). La renovación del entendimiento no es ponerle una calcomanía bonita al monitor por fuera (religiosidad), sino actualizar el sistema operativo desde el código fuente de Dios para que todo tu cuerpo funcione en paz.',
+            readingPassage: '1 Corintios 15:42-49 y Romanos 12:2',
+            readingFocus: 'De un cuerpo sujeto a desgaste a una mente gobernada por el Espíritu.',
+            scienceData: 'Dra. Lisa Miller (Universidad de Columbia, JAMA Psychiatry): Mediante resonancias magnéticas demostró que la conexión espiritual activa engrosa físicamente la corteza cerebral exactamente en las zonas que la depresión debilita, reduciendo hasta en 80% el riesgo de adicciones y depresión severa.',
+            ethicsData: 'Genómica Social Humana (Drs. Slavich y Cole, UCLA): Nuestras interpretaciones sociales de hostilidad, rencor o rechazo activan el patrón genético CTRA, encendiendo más de 200 genes de inflamación crónica. La paz, el perdón y el propósito apagan la inflamación celular.',
+            characterMirror: 'Los 10 Espías y Saúl vs. David (Números 13:33 / 1 Samuel 18): Los 10 espías miraron la misma tierra que Josué y Caleb, pero su filtro mental les hizo decir "éramos como langostas". Saúl dejó que la inseguridad destruyera su ética y paz mental; David reconfiguraba su mente hablándole a su alma (Salmo 42:5).',
+            historicalContext: 'Corinto era una ciudad obsesionada con la filosofía griega (que despreciaba el cuerpo físico) y el estatus social. Pablo les revela que el cuerpo importa tanto que está destinado a la incorrupción, y que esa transformación empieza hoy renovando la forma de pensar.',
+            biblicalTerms: [
+              { word: 'Metamorphoō (Romanos 12:2 - Transformaos)', meaning: 'Cambiar de forma desde la naturaleza interna hacia afuera; opuesto a usar una máscara religiosa externa (syschematizō).' },
+              { word: 'Anakainōsis tou noos (Renovación del entendimiento)', meaning: 'Reconfiguración profunda de la facultad de percibir, interpretar la realidad y discernir la verdad.' },
+              { word: 'Sōma Pneumatikon (1 Corintios 15:44)', meaning: 'No es un fantasma sin cuerpo, sino un cuerpo sustancial totalmente dirigido y energizado por el Espíritu Santo.' }
+            ],
+            studyConnection: 'En tu cuaderno "ESTUDIOS" (Episodios 34, 34.1 y 34.2) se explica que la malicia o la ansiedad no necesitan cambiar los hechos para frenar tu propósito; les basta con cambiar cómo interpretas los hechos. Cuando el Espíritu Santo renueva tu filtro de interpretación, tus conexiones sinápticas crean caminos nuevos.',
+            scientificDefinitions: [
+              {
+                title: '¿Qué son las Conexiones Sinápticas y la Neuroplasticidad?',
+                definition: 'La sinapsis es el puente bioeléctrico donde una neurona se comunica con otra. Por la Ley de Hebb, los pensamientos que repites engrosan físicamente ese puente (mielinización), convirtiéndolo en una autopista automática.',
+                spiritualLink: 'Cuando Filipenses 4:8 dice "en esto pensad", te está dando el protocolo para construir autopistas neuronales de paz y debilitar por falta de uso las veredas del miedo.'
+              },
+              {
+                title: '¿Qué es la Epigenética?',
+                definition: 'Son interruptores químicos (como etiquetas de metilo) sobre tu ADN que le indican a tus células qué genes encender o apagar según cómo percibes tu entorno, sin alterar tu secuencia genética base.',
+                spiritualLink: 'Vivir bajo la Gracia y la obediencia como refugio (Chat "Estudio 1 Corintios 15") disminuye el cortisol y activa la expresión genética de equilibrio y salud celular.'
+              }
+            ],
+            dailyApplication: 'Auditoría de Interpretación: Hoy, ante cualquier momento de prisa o sobrecarga, detén el pensamiento automático por 10 segundos (2 Corintios 10:5). Cambia conscientemente la queja ("no puedo con todo") por entrenamiento neuronal de verdad ("Dios ordena mis pasos y mi mente trabaja en paz").',
+            wisdomVerseRef: 'Proverbios 4:23 y Proverbios 14:30 (RVR1960)',
+            wisdomVerseText: 'Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida. El corazón apacible es vida de la carne; mas la envidia es carcoma de los huesos.',
+            wisdomVerseNote: 'Respaldo actual: La psiconeuroinmunología confirma que el rencor y el estrés crónico liberan citocinas proinflamatorias que literalmente desmineralizan el tejido óseo ("carcoma de los huesos"), mientras que la paz regula el sistema inmune ("vida de la carne").',
+            prayer: 'Señor, hoy decido guardar mi mente y mi corazón en tu verdad. Te entrego mis pendientes y cualquier pensamiento de presión. Que tu Espíritu renueve mi filtro de percepción, apague el ruido de ansiedad y trace en mi cerebro caminos nuevos de sabiduría, paz y propósito eterno. Amén.',
+            reflectionQuestion: 'Si tus pensamientos más repetidos de esta semana fueran autopistas físicas en tu cerebro, ¿cuál has estado ensanchando y qué nuevo camino de verdad vas a estrenar hoy?',
+            references: [
+              'Cuaderno ESTUDIOS: Episodios 34, 34.1, 34.2 (Verdaderamente Libres) y La creación aguarda II (Pbro. Aldo Flores).',
+              'Miller, L. et al. (2014). JAMA Psychiatry / The Awakened Brain (Columbia University).',
+              'Slavich, G. M., & Cole, S. W. (2013). The Emerging Field of Human Social Genomics (UCLA).',
+              'Léxico Griego Interlinear LogosKLogos (Romanos 12:2; 1 Corintios 15:42-49).'
+            ]
+          },
+          labModules: [
+            {
+              icon: '🔄',
+              shortTitle: '1. Enfoque Contrario',
+              angle: 'Concepto 1 • Desmontando mitos religiosos',
+              title: 'La Glorificación no empieza en la tumba, empieza en tu sinapsis',
+              notebookSources: 'Episodio 34 + Episodio 20 (Eternidad en tu corazón)',
+              description: 'Contrario a la idea tradicional de que lo eterno solo ocurre después de morir, la Palabra muestra que la eternidad ya está sembrada en el corazón humano y que la transformación comienza en el entendimiento presente.',
+              exercise: 'Busca en 1 Corintios 15 y Romanos 8 cómo Pablo conecta el Espíritu que habita hoy en nosotros con la incorrupción futura. Anota qué áreas de tu mentalidad actual todavía operan como "supervivencia" en lugar de "diseño eterno".'
+            },
+            {
+              icon: '🧬',
+              shortTitle: '2. Bitácora Personal',
+              angle: 'Concepto 2 • Caso de estudio en tiempo real',
+              title: 'Reconfiguración Epigenética de tus Reacciones Semanales',
+              notebookSources: 'Episodio 32.2 (Epigenética) + Chat Sanando la Impulsividad',
+              description: 'La Dra. Lisa Feldman Barrett demostró que el cerebro construye emociones usando experiencias pasadas e interpretaciones. Aquí usas tus propios retos de la semana como laboratorio vivo.',
+              exercise: 'Elige un momento de esta semana donde sentiste frustración o desorganización. Identifica cuál fue la "interpretación oculta" y reescríbela usando un principio de Gracia y Sabiduría.'
+            },
+            {
+              icon: '📊',
+              shortTitle: '3. Datos y Pruebas',
+              angle: 'Concepto 3 • Primero escrito, luego descubierto',
+              title: 'Matriz Bíblico-Científica: Escritura vs. Metodología Actual',
+              notebookSources: 'Salmo 139:16 Teología y Ciencia + Episodio 32.1 (ADN)',
+              description: 'Archivo comparativo de pasajes bíblicos escritos hace milenios que hoy son respaldados por la genética, la termodinámica y la neuroimagen (Dr. Andrew Newberg).',
+              exercise: 'Compara Salmo 139:16 ("Mi embrión vieron tus ojos...") con el código genético y el Episodio 36.3 (El Libro de los Días). Documenta la relación entre información biológica y propósito preexistente.'
+            },
+            {
+              icon: '🛠️',
+              shortTitle: '4. Guía Práctica',
+              angle: 'Concepto 4 • Entrenamiento sin religiosidad',
+              title: 'Simulador de los 5 Sentidos Espirituales y Parresía',
+              notebookSources: 'Orando con los 5 Sentidos + Episodio 23 (Parresía)',
+              description: 'Hebreos 5:14 dice que los sentidos espirituales se entrenan por el uso para discernir el bien y el mal antes de reaccionar impulsivamente.',
+              exercise: 'Practica el "Filtro de Santiago 3" (el timón de la lengua): durante tu día libre, observa cómo hablas de tus proyectos y corrige cualquier expresión de duda usando Parresía (libertad y autoridad espiritual).'
+            },
+            {
+              icon: '🔍',
+              shortTitle: '5. Lo Pasado por Alto',
+              angle: 'Concepto 5 • Arqueología lingüística',
+              title: 'Los Archivos Celestiales y las Raíces Hebreas/Griegas',
+              notebookSources: 'Episodios 36.1, 36.2, 36.3 + LogosKLogos Interlinear',
+              description: 'Detalles profundos que se pierden en las traducciones superficiales sobre el Libro de la Vida, el Libro de la Memoria (Malaquías 3:16) y el Libro de las Obras.',
+              exercise: 'Explora Malaquías 3:16 y Salmo 56:8 junto con tus apuntes del Episodio 36.1: ¿Por qué Dios guarda memoria de las conversaciones de quienes le temen y cómo impacta eso nuestra ética diaria?'
+            }
+          ],
+          bibleBooks: JSON.parse(localStorage.getItem('logos_bible_books')) || [
+            { name: 'Génesis', total: 50, read: 0 }, { name: 'Éxodo', total: 40, read: 0 },
+            { name: 'Levítico', total: 27, read: 0 }, { name: 'Números', total: 36, read: 0 },
+            { name: 'Deuteronomio', total: 34, read: 0 }, { name: 'Josué', total: 24, read: 0 },
+            { name: 'Jueces', total: 21, read: 0 }, { name: 'Rut', total: 4, read: 0 },
+            { name: '1 Samuel', total: 31, read: 0 }, { name: '2 Samuel', total: 24, read: 0 },
+            { name: '1 Reyes', total: 22, read: 0 }, { name: '2 Reyes', total: 25, read: 0 },
+            { name: 'Salmos', total: 150, read: 0 }, { name: 'Proverbios', total: 31, read: 0 },
+            { name: 'Eclesiastés', total: 12, read: 0 }, { name: 'Isaías', total: 66, read: 0 },
+            { name: 'Jeremías', total: 52, read: 0 }, { name: 'Ezequiel', total: 48, read: 0 },
+            { name: 'Daniel', total: 12, read: 0 }, { name: 'Malaquías', total: 4, read: 0 },
+            { name: 'Mateo', total: 28, read: 0 }, { name: 'Marcos', total: 16, read: 0 },
+            { name: 'Lucas', total: 24, read: 0 }, { name: 'Juan', total: 21, read: 0 },
+            { name: 'Hechos', total: 28, read: 0 }, { name: 'Romanos', total: 16, read: 1 },
+            { name: '1 Corintios', total: 16, read: 1 }, { name: '2 Corintios', total: 13, read: 0 },
+            { name: 'Gálatas', total: 6, read: 0 }, { name: 'Efesios', total: 6, read: 0 },
+            { name: 'Filipenses', total: 4, read: 0 }, { name: 'Colosenses', total: 4, read: 0 },
+            { name: 'Hebreos', total: 13, read: 0 }, { name: 'Santiago', total: 5, read: 0 },
+            { name: '1 Pedro', total: 5, read: 0 }, { name: '1 Juan', total: 5, read: 0 },
+            { name: 'Apocalipsis', total: 22, read: 0 }
+          ]
+        }
+      },
+      computed: {
+        totalReadChapters() {
+          return this.bibleBooks.reduce((sum, b) => sum + b.read, 0);
+        },
+        progressPercentage() {
+          return ((this.totalReadChapters / 1189) * 100).toFixed(1);
+        }
+      },
+      watch: {
+        reflectionNote(val) {
+          localStorage.setItem('logos_reflection_today', val);
+        }
+      },
+      methods: {
+        completeDailyStreak() {
+          if (!this.completedToday) {
+            this.streak++;
+            this.completedToday = true;
+            localStorage.setItem('logos_streak', this.streak);
+          }
+        },
+        markBookChapterQuick() {
+          const cor = this.bibleBooks.find(b => b.name === '1 Corintios');
+          if (cor && cor.read < cor.total) cor.read++;
+          this.saveBooks();
+          this.mode = 'map';
+        },
+        addChapter(book, amount) {
+          if (book.read + amount <= book.total) book.read += amount;
+          this.saveBooks();
+        },
+        completeBook(book) {
+          book.read = book.total;
+          this.saveBooks();
+        },
+        saveBooks() {
+          localStorage.setItem('logos_bible_books', JSON.stringify(this.bibleBooks));
+        },
+        saveLabNotes() {
+          localStorage.setItem('logos_lab_notes', JSON.stringify(this.labNotes));
+        }
+      }
+    }).mount('#app');
+  </script>
+</body>
+</html>
